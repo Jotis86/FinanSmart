@@ -30,9 +30,14 @@ st.sidebar.markdown("""
 </a>
 """, unsafe_allow_html=True)
 
+# Add space between GitHub button and LinkedIn button
+st.sidebar.write("")
+st.sidebar.write("")
+st.sidebar.write("")
+
 # LinkedIn profile button
 st.sidebar.markdown("""
-<a href="www.linkedin.com/in/juan-duran-bon" target="_blank">
+<a href="https://www.linkedin.com/in/juan-duran-bon" target="_blank">
     <button style="background-color: #0077B5; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;">
         LinkedIn Profile
     </button>
