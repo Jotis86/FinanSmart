@@ -163,8 +163,8 @@ elif menu == "View Charts":
     In this section, you can visualize your financial data with bar charts and pie charts. This will help you understand your income and expense distribution.
     """)
 
-    df_incomes = pd.DataFrame(finance.incomes)
-    df_expenses = pd.DataFrame(finance.expenses)
+    df_incomes = pd.DataFrame(st.session_state['incomes'])
+    df_expenses = pd.DataFrame(st.session_state['expenses'])
 
     fig, ax = plt.subplots(3, 1, figsize=(12, 18))
 
