@@ -185,8 +185,40 @@ elif menu == "View Tables":
     In this section, you can see detailed tables of your income and expenses. This will help you analyze your financial data more effectively.
     """)
 
-    df_incomes = pd.DataFrame(finance.incomes)
-    df_expenses = pd.DataFrame(finance.expenses)
+    # Botón para resetear los datos
+    if st.button("Reset All Data"):
+        st.session_state['incomes'] = []
+        st.session_state['expenses'] = []
+        st.experimental_rerun()
+
+    # Seleccionar y borrar ingreso
+    st.subheader("Delete Income")
+    if st.session_state['incomes']:
+        income_index = st.number_input("Enter the index of the income to delete", min_value=0, max_value=len(st.session_state['incomes'])-1, step=1)
+        if st.button("Delete Income"):
+            if 0 <= income_index < len(st.session_state['incomes']):
+                st.session_state['incomes'].pop(income_index)
+                st.success("Income deleted successfully")
+                st.experimental_rerun()
+    else:
+        st.write("No incomes to delete.")
+
+    # Seleccionar y borrar gasto
+    st.subheader("Delete Expense")
+    if st.session_state['expenses']:
+        expense_index = st.number_input("Enter the index of the expense to delete", min_value=0, max_value=len(st.session_state['expenses'])-1, step=1)
+        if st.button("Delete Expense"):
+            if 0 <= expense_index < len(st.session_state['expenses']):
+                st.session_state['expenses'].pop(expense_index)
+                st.success("Expense deleted successfully")
+                st.experimental_rerun()
+    else:
+        st.write("No expenses to delete.")
+
+    # Crear DataFrames después de las operaciones de eliminación
+    df_incomes = pd.DataFrame(st.session_state['incomes'])
+    df_expenses = pd.DataFrame(st.session_state['expenses'])
+
     st.subheader("Incomes")
     st.dataframe(df_incomes)
     st.subheader("Expenses")
@@ -195,7 +227,6 @@ elif menu == "View Tables":
     # Función para convertir DataFrame a CSV
     def convert_df_to_csv(df):
         return df.to_csv(index=False).encode('utf-8')
-
 
     # Botón para descargar CSV de ingresos
     st.download_button(
@@ -212,41 +243,6 @@ elif menu == "View Tables":
         file_name='expenses.csv',
         mime='text/csv'
     )
-
-    # Botón para resetear los datos
-    if st.button("Reset All Data"):
-        st.session_state['incomes'] = []
-        st.session_state['expenses'] = []
-    
-    # Mostrar ingresos y gastos actuales
-    st.subheader("Current Incomes")
-    st.write(st.session_state['incomes'])
-
-    st.subheader("Current Expenses")
-    st.write(st.session_state['expenses'])
-        
-
-    # Seleccionar y borrar ingreso
-    st.subheader("Delete Income")
-    if st.session_state['incomes']:
-        income_index = st.number_input("Enter the index of the income to delete", min_value=0, max_value=len(st.session_state['incomes'])-1, step=1)
-        if st.button("Delete Income"):
-            if 0 <= income_index < len(st.session_state['incomes']):
-                st.session_state['incomes'].pop(income_index)
-                st.success("Income deleted successfully")
-    else:
-        st.write("No incomes to delete.")
-
-    # Seleccionar y borrar gasto
-    st.subheader("Delete Expense")
-    if st.session_state['expenses']:
-        expense_index = st.number_input("Enter the index of the expense to delete", min_value=0, max_value=len(st.session_state['expenses'])-1, step=1)
-        if st.button("Delete Expense"):
-            if 0 <= expense_index < len(st.session_state['expenses']):
-                st.session_state['expenses'].pop(expense_index)
-                st.success("Expense deleted successfully")
-    else:
-        st.write("No expenses to delete.")
 
 # Recommendations page
 elif menu == "Recommendations":
