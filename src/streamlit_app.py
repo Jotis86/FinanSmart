@@ -63,6 +63,9 @@ if menu == "Home":
 # Add Income/Expense page
 elif menu == "Add Income/Expense":
     st.header("Add Income and Expense")
+    st.write("""
+    In this section, you can add your income and expenses. Select the type, category, and description, then enter the amount. This will help you keep track of your financial transactions.
+    """)
 
     income_categories = ["Salary", "Bonus", "Investment", "Other"]
     expense_categories = ["Food", "Transportation", "Housing", "Entertainment", "Health", "Education", "Utilities", "Insurance", "Debt", "Savings", "Gifts", "Travel", "Other"]
@@ -106,6 +109,10 @@ elif menu == "Add Income/Expense":
 # View Charts page
 elif menu == "View Charts":
     st.header("Charts")
+    st.write("""
+    In this section, you can visualize your financial data with bar charts and pie charts. This will help you understand your income and expense distribution.
+    """)
+
     df_incomes = pd.DataFrame(finance.incomes)
     df_expenses = pd.DataFrame(finance.expenses)
 
@@ -138,9 +145,14 @@ elif menu == "View Charts":
 
     st.pyplot(fig)
 
+
 # View Tables page
 elif menu == "View Tables":
     st.header("Income and Expense Tables")
+    st.write("""
+    In this section, you can see detailed tables of your income and expenses. This will help you analyze your financial data more effectively.
+    """)
+
     df_incomes = pd.DataFrame(finance.incomes)
     df_expenses = pd.DataFrame(finance.expenses)
     st.subheader("Incomes")
@@ -151,6 +163,11 @@ elif menu == "View Tables":
 # Recommendations page
 elif menu == "Recommendations":
     st.header("Recommendations")
-    recommendations = finance.generate_recommendations()
-    for recommendation in recommendations:
-        st.write(f"- {recommendation}")
+    st.write("""
+    In this section, you can get personalized recommendations based on your financial data to help you save more and spend wisely.
+    """)
+
+    if st.button("Get Recommendations"):
+        recommendations = finance.generate_recommendations()
+        for recommendation in recommendations:
+            st.write(f"- {recommendation}")
