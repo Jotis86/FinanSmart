@@ -17,11 +17,6 @@ main_image_path = os.path.join(os.path.dirname(__file__), 'main.jpg')
 incomes_file_path = os.path.join(os.path.dirname(__file__), 'incomes.csv')
 expenses_file_path = os.path.join(os.path.dirname(__file__), 'expenses.csv')
 
-# Function to load data from CSV
-def load_data(file_path):
-    if os.path.exists(file_path) and os.path.getsize(file_path) > 0:
-        return pd.read_csv(file_path).to_dict('records')
-    return []
 
 # Function to load data from CSV
 def load_data(file_path):
@@ -193,7 +188,10 @@ elif menu == "View Charts":
         ax[1].set_ylabel("Amount")
 
         # Pie chart for expenses
-        df_expenses_grouped = df_expenses.drop(columns=["date"]).groupby("description").sum()
+        if 'date' in df_expenses.columns:
+            df_expenses_grouped = df_expenses.drop(columns=["date"]).groupby("description").sum()
+        else:
+            df_expenses_grouped = df_expenses.groupby("description").sum()
         ax[2].pie(df_expenses_grouped["amount"], labels=df_expenses_grouped.index, autopct='%1.1f%%', startangle=140, colors=sns.color_palette("magma", len(df_expenses_grouped)))
         ax[2].set_title("Expense Distribution")
     else:
@@ -201,6 +199,8 @@ elif menu == "View Charts":
         ax[1].set_title("Expenses")
         ax[2].text(0.5, 0.5, 'No expense data available', horizontalalignment='center', verticalalignment='center')
         ax[2].set_title("Expense Distribution")
+
+    st.pyplot(fig)
 
     st.pyplot(fig)
 
