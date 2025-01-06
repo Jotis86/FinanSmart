@@ -193,7 +193,7 @@ elif menu == "Acknowledgements":
 
     # Add text below the image
     st.markdown("""
-        <div style="text-align: center; margin-top: 20px;">
+        <div style="text-align: left; margin-top: 20px;">
             <h3>Coding, Gaming, and Leveling Up</h3>
         </div>
     """, unsafe_allow_html=True)
