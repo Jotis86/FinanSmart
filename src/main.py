@@ -3,6 +3,10 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import csv
 from datetime import datetime
+import warnings
+
+# Ignorar FutureWarning de pandas
+warnings.simplefilter(action='ignore', category=FutureWarning)
 
 class Finance:
     def __init__(self):
@@ -49,20 +53,22 @@ class Finance:
             ax[2].pie(df_expenses_grouped["amount"], labels=df_expenses_grouped.index, autopct='%1.1f%%', startangle=140, colors=sns.color_palette("magma", len(df_expenses_grouped)))
             ax[2].set_title("Expense Distribution")
 
-            # Line chart for expense evolution
+            # Line chart for expense evolution (monthly)
             df_expenses['date'] = pd.to_datetime(df_expenses['date'])
-            df_expenses.sort_values('date', inplace=True)
-            sns.lineplot(x='date', y='amount', hue='category', data=df_expenses, ax=ax[3], palette="magma", marker='o')
-            ax[3].set_title("Expense Evolution")
-            ax[3].set_xlabel("Date")
+            df_expenses['month_year'] = df_expenses['date'].dt.to_period('M').astype(str)
+            df_expenses_grouped_monthly = df_expenses.groupby(['month_year', 'category'])['amount'].sum().reset_index()
+            sns.lineplot(x='month_year', y='amount', hue='category', data=df_expenses_grouped_monthly, ax=ax[3], palette="magma", marker='o')
+            ax[3].set_title("Monthly Expense Evolution")
+            ax[3].set_xlabel("Month-Year")
             ax[3].set_ylabel("Amount")
+            ax[3].set_xticklabels(df_expenses_grouped_monthly['month_year'], rotation=45)
         else:
             ax[1].text(0.5, 0.5, 'No expense data available', horizontalalignment='center', verticalalignment='center')
             ax[1].set_title("Expenses")
             ax[2].text(0.5, 0.5, 'No expense data available', horizontalalignment='center', verticalalignment='center')
             ax[2].set_title("Expense Distribution")
             ax[3].text(0.5, 0.5, 'No expense data available', horizontalalignment='center', verticalalignment='center')
-            ax[3].set_title("Expense Evolution")
+            ax[3].set_title("Monthly Expense Evolution")
 
         plt.tight_layout()
         plt.show()
@@ -146,6 +152,28 @@ class Finance:
 def main():
     finance = Finance()
 
+    income_categories = ["Salary", "Bonus", "Investment", "Other"]
+    expense_categories = ["Food", "Transportation", "Housing", "Entertainment", "Health", "Education", "Utilities", "Insurance", "Debt", "Savings", "Gifts", "Travel", "Other"]
+    descriptions = {
+        "Salary": ["Monthly Salary", "Freelance Work", "Part-time Job", "Consulting"],
+        "Bonus": ["Year-end Bonus", "Performance Bonus", "Referral Bonus", "Holiday Bonus"],
+        "Investment": ["Stock Dividends", "Real Estate Income", "Interest Income", "Cryptocurrency Gains"],
+        "Other": ["Gift", "Lottery", "Inheritance", "Found Money"],
+        "Food": ["Groceries", "Dining Out", "Snacks", "Beverages"],
+        "Transportation": ["Gas", "Public Transport", "Car Maintenance", "Parking Fees"],
+        "Housing": ["Rent", "Mortgage", "Property Taxes", "Home Repairs"],
+        "Entertainment": ["Movies", "Concerts", "Streaming Services", "Games"],
+        "Health": ["Doctor Visit", "Medication", "Health Insurance", "Gym Membership"],
+        "Education": ["Tuition", "Books", "Online Courses", "Workshops"],
+        "Utilities": ["Electricity", "Water", "Internet", "Phone"],
+        "Insurance": ["Car Insurance", "Home Insurance", "Life Insurance", "Health Insurance"],
+        "Debt": ["Credit Card Payment", "Loan Payment", "Mortgage Payment", "Student Loan Payment"],
+        "Savings": ["Emergency Fund", "Retirement Fund", "Investment Account", "Savings Account"],
+        "Gifts": ["Birthday Gifts", "Holiday Gifts", "Wedding Gifts", "Charity"],
+        "Travel": ["Flights", "Hotels", "Car Rental", "Activities"],
+        "Other": ["Miscellaneous", "Unexpected Expenses", "Pet Expenses", "Subscriptions"]
+    }
+
     while True:
         type = input("Do you want to add an income or an expense? (income/expense): ").strip().lower()
         if type not in ["income", "expense"]:
@@ -156,8 +184,23 @@ def main():
             amount = float(input(f"Enter the amount of the {type}: "))
             if amount <= 0:
                 raise ValueError("The amount must be positive.")
-            description = input(f"Enter a description for the {type}: ")
-            category = input(f"Enter a category for the {type}: ")
+            
+            if type == "income":
+                category = input(f"Select a category for the {type} ({', '.join(income_categories)}): ").strip()
+                if category not in income_categories:
+                    print("Invalid category. Please try again.")
+                    continue
+            else:
+                category = input(f"Select a category for the {type} ({', '.join(expense_categories)}): ").strip()
+                if category not in expense_categories:
+                    print("Invalid category. Please try again.")
+                    continue
+
+            description = input(f"Select a description for the {type} ({', '.join(descriptions[category])}): ").strip()
+            if description not in descriptions[category]:
+                print("Invalid description. Please try again.")
+                continue
+
         except ValueError as e:
             print(f"Invalid input: {e}. Please try again.")
             continue
