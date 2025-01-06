@@ -13,6 +13,27 @@ finance = Finance()
 sidebar_image_path = os.path.join(os.path.dirname(__file__), 'menu.jpg')
 main_image_path = os.path.join(os.path.dirname(__file__), 'main.jpg')
 
+# File paths for storing data
+incomes_file_path = os.path.join(os.path.dirname(__file__), 'incomes.csv')
+expenses_file_path = os.path.join(os.path.dirname(__file__), 'expenses.csv')
+
+# Function to load data from CSV
+def load_data(file_path):
+    if os.path.exists(file_path):
+        return pd.read_csv(file_path).to_dict('records')
+    return []
+
+# Function to save data to CSV
+def save_data(data, file_path):
+    pd.DataFrame(data).to_csv(file_path, index=False)
+
+# Load data into session state
+if 'incomes' not in st.session_state:
+    st.session_state['incomes'] = load_data(incomes_file_path)
+
+if 'expenses' not in st.session_state:
+    st.session_state['expenses'] = load_data(expenses_file_path)
+
 # Sidebar with navigation menu and image
 st.sidebar.image(sidebar_image_path, use_container_width=True)
 st.sidebar.title("Navigation")
@@ -56,12 +77,6 @@ st.sidebar.markdown("""
 </a>
 """, unsafe_allow_html=True)
 
-# Initialize session state for incomes and expenses
-if 'incomes' not in st.session_state:
-    st.session_state['incomes'] = finance.incomes
-
-if 'expenses' not in st.session_state:
-    st.session_state['expenses'] = finance.expenses
 
 # Home page
 if menu == "Home":
@@ -134,9 +149,11 @@ elif menu == "Add Income/Expense":
 
     if st.button("Add"):
         if type == "income":
-            finance.add_income(amount, description, category)
+            st.session_state['incomes'].append({'amount': amount, 'description': description, 'category': category})
+            save_data(st.session_state['incomes'], incomes_file_path)
         else:
-            finance.add_expense(amount, description, category)
+            st.session_state['expenses'].append({'amount': amount, 'description': description, 'category': category})
+            save_data(st.session_state['expenses'], expenses_file_path)
         st.success(f"{type.capitalize()} added successfully")
 
 # View Charts page
@@ -189,6 +206,8 @@ elif menu == "View Tables":
     if st.button("Reset All Data"):
         st.session_state['incomes'] = []
         st.session_state['expenses'] = []
+        save_data(st.session_state['incomes'], incomes_file_path)
+        save_data(st.session_state['expenses'], expenses_file_path)
         
 
     # Seleccionar y borrar ingreso
@@ -198,6 +217,7 @@ elif menu == "View Tables":
         if st.button("Delete Income"):
             if 0 <= income_index < len(st.session_state['incomes']):
                 st.session_state['incomes'].pop(income_index)
+                save_data(st.session_state['incomes'], incomes_file_path)
                 st.success("Income deleted successfully")
                 
     else:
@@ -210,6 +230,7 @@ elif menu == "View Tables":
         if st.button("Delete Expense"):
             if 0 <= expense_index < len(st.session_state['expenses']):
                 st.session_state['expenses'].pop(expense_index)
+                save_data(st.session_state['expenses'], expenses_file_path)
                 st.success("Expense deleted successfully")
                 
     else:
