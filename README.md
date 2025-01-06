@@ -2,13 +2,13 @@
 
 ![Portada](images/main.jpg)
 
-![Commits](https://img.shields.io/github/commit-activity/m/Jotis86/Supply-Chain-Project)
-![Issues Abiertas](https://img.shields.io/github/issues/Jotis86/Supply-Chain-Project)
-![Pull Requests](https://img.shields.io/github/issues-pr/Jotis86/Supply-Chain-Project)
-![Forks](https://img.shields.io/github/forks/Jotis86/Supply-Chain-Project)
-![Tamaño del Repositorio](https://img.shields.io/github/repo-size/Jotis86/Supply-Chain-Project)
+![Commits](https://img.shields.io/github/commit-activity/m/Jotis86/FinanSmart)
+![Issues Abiertas](https://img.shields.io/github/issues/Jotis86/FinanSmart)
+![Pull Requests](https://img.shields.io/github/issues-pr/Jotis86/FinanSmart)
+![Forks](https://img.shields.io/github/forks/Jotis86/FinanSmart)
+![Tamaño del Repositorio](https://img.shields.io/github/repo-size/Jotis86/FinanSmart)
 ![Autor](https://img.shields.io/badge/autor-Juan%20Duran%20Bon-blue)
-![Licencia](https://img.shields.io/github/license/Jotis86/Supply-Chain-Project)
+![Licencia](https://img.shields.io/github/license/Jotis86/FinanSmart)
 
 
 ## Introduction 📚
