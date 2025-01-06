@@ -189,7 +189,7 @@ elif menu == "Acknowledgements":
 
     # Add an image to the acknowledgements section
     acknowledgements_image_path = os.path.join(os.path.dirname(__file__), 'Jotis.png')
-    st.image(acknowledgements_image_path, use_container_width=True)
+    st.image(acknowledgements_image_path, width=200)  # Set the width to make the image smaller
 
     st.write("""
     ### Additional Thanks:
