@@ -56,6 +56,13 @@ st.sidebar.markdown("""
 </a>
 """, unsafe_allow_html=True)
 
+# Initialize session state for incomes and expenses
+if 'incomes' not in st.session_state:
+    st.session_state['incomes'] = finance.incomes
+
+if 'expenses' not in st.session_state:
+    st.session_state['expenses'] = finance.expenses
+
 # Home page
 if menu == "Home":
     st.title("Welcome to FINANSMART")
@@ -189,11 +196,6 @@ elif menu == "View Tables":
     def convert_df_to_csv(df):
         return df.to_csv(index=False).encode('utf-8')
 
-    # Función para resetear los datos
-    def reset_data():
-        finance.incomes = []
-        finance.expenses = []
-        st.session_state['reset'] = True
 
     # Botón para descargar CSV de ingresos
     st.download_button(
@@ -213,8 +215,8 @@ elif menu == "View Tables":
 
     # Botón para resetear los datos
     if st.button("Reset Data"):
-        reset_data()
-        st.write("Data has been reset. Please refresh the page to see the changes.")
+        st.session_state['incomes'] = []
+        st.session_state['expenses'] = []
 
 # Recommendations page
 elif menu == "Recommendations":
