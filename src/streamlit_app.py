@@ -189,6 +189,8 @@ elif menu == "Acknowledgements":
 
     # Add space between text and image
     st.write("")
+    st.write("")
+    st.write("")    
 
     # Add an image to the acknowledgements section and center it
     acknowledgements_image_path = os.path.join(os.path.dirname(__file__), 'Jotis.png')
