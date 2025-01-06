@@ -1,4 +1,4 @@
-# FINANSMART
+# 💵 FINANSMART 💰
 
 ![Portada](images/main.jpg)
 
@@ -17,44 +17,52 @@
 
 ## Objectives 🎯
 
-- **Track Finances**: Keep a detailed record of your income and expenses.
-- **Visualize Data**: Use charts and tables to understand your financial situation.
-- **Receive Recommendations**: Get personalized advice to improve your financial health.
+- **Track Finances** 📒: Keep a detailed record of your income and expenses.
+- **Visualize Data** 📊: Use charts and tables to understand your financial situation.
+- **Receive Recommendations** 💡: Get personalized advice to improve your financial health.
 
 ## Functionality ⚙️
 
-- **Add Income and Expenses**: Easily add your financial transactions with predefined categories and descriptions.
-- **View Charts**: Visualize your financial data with bar charts and pie charts.
-- **View Tables**: See detailed tables of your income and expenses.
-- **Get Recommendations**: Receive personalized financial advice based on your data.
+- **Add Income and Expenses** 💰: Easily add your financial transactions with predefined categories and descriptions.
+- **View Charts** 📈: Visualize your financial data with bar charts and pie charts.
+- **View Tables** 📋: See detailed tables of your income and expenses.
+- **Get Recommendations** 📝: Receive personalized financial advice based on your data.
 
 ## Tools Used 🛠️
 
-- **Streamlit**: For building the interactive web application.
-- **Pandas**: For data manipulation and analysis.
-- **Seaborn**: For creating beautiful visualizations.
-- **Matplotlib**: For data visualization.
-- **GitHub**: For version control and collaboration.
+- **Streamlit** 🌐: For building the interactive web application.
+- **Pandas** 🐼: For data manipulation and analysis.
+- **Seaborn** 📊: For creating beautiful visualizations.
+- **Matplotlib** 📉: For data visualization.
+- **GitHub** 🐙: For version control and collaboration.
 
 ## Development Process 🚀
 
-1. **Planning**: Define the objectives and functionality of the application.
-2. **Design**: Create the user interface and plan the data structure.
-3. **Implementation**: Develop the application using Streamlit, Pandas, Seaborn, and Matplotlib.
-4. **Testing**: Test the application to ensure it works as expected.
-5. **Deployment**: Deploy the application and make it available to users.
+1. **Planning** 🗓️: Define the objectives and functionality of the application.
+2. **Design** 🎨: Create the user interface and plan the data structure.
+3. **Implementation** 💻: Develop the application using Streamlit, Pandas, Seaborn, and Matplotlib.
+4. **Testing** 🧪: Test the application to ensure it works as expected.
+5. **Deployment** 🚀: Deploy the application and make it available to users.
 
 ## Results 📈
 
-- **User-Friendly Interface**: An intuitive interface that makes it easy to manage your finances.
-- **Detailed Insights**: Charts and tables that provide a clear understanding of your financial situation.
-- **Actionable Recommendations**: Personalized advice to help you improve your financial health.
+- **User-Friendly Interface** 🖥️: An intuitive interface that makes it easy to manage your finances.
+- **Detailed Insights** 🔍: Charts and tables that provide a clear understanding of your financial situation.
+- **Actionable Recommendations** 💡: Personalized advice to help you improve your financial health.
 
 ## Project Structure 🗂️
 
-- `src/app.py`: Main application file.
-- `src/backend.py`: Backend logic.
-- `src/streamlit_app.py`: Streamlit application.
+The project structure is organized as follows:
+
+- `images/` 🖼️: Contains image files used in the project.
+- `src/` 📂: Contains the source code of the application.
+  - `main.py` 📝: Main application file.
+  - `streamlit_app.py` 🌐: Streamlit application.
+- `.gitignore` 🚫: Specifies files and directories to be ignored by Git.
+- `LICENSE` 📜: Contains the license information for the project.
+- `README.md` 📖: The readme file you are currently reading.
+- `requirements.txt` 📋: Lists the dependencies required to run the application.
+
 
 ## Streamlit App 🚀
 
@@ -76,16 +84,16 @@ In this section, you can add your income and expenses. Follow these steps:
 ### View Charts 📊
 
 This section allows you to visualize your financial data through various charts:
-- **Bar Charts**: Display your income and expenses categorized by description.
-- **Pie Charts**: Show the distribution of your expenses across different categories.
+- **Bar Charts** 📊: Display your income and expenses categorized by description.
+- **Pie Charts** 🥧: Show the distribution of your expenses across different categories.
 
 These visualizations help you understand your financial situation at a glance.
 
 ### View Tables 📋
 
 In the "View Tables" section, you can see detailed tables of your income and expenses. This allows for a more granular analysis of your financial data. You can:
-- **View Incomes**: See a table of all your income transactions.
-- **View Expenses**: See a table of all your expense transactions.
+- **View Incomes** 💵: See a table of all your income transactions.
+- **View Expenses** 💸: See a table of all your expense transactions.
 
 ### Recommendations 💡
 
@@ -96,27 +104,25 @@ The recommendations section provides personalized advice based on your financial
 
 This section acknowledges the contributions and support from various individuals and organizations that made this project possible.
 
-### Access the Web App
+### Access the Web App 🌐
 You can access the Streamlit web app using the following URL:
 [FINANSMART](https://finansmart-xdaqnporzlwnoz8fas2ben.streamlit.app/)
 
+## Requirements 🛠️
 
-## 🛠️ Requirements
-
-- 💻 Power BI Desktop
 - 🐍 Python 3.x
 - 🐼 Pandas
 - 📊 Seaborn
 - 📉 Matplotlib
 - 🌐 Streamlit
 
-## 📧 Contact
+## Contact 📧
 
 For any questions, you can contact me at:
 - 📧 Email: jotaduranbon@gmail.com
-- 💬 LinkedIn: [My LinkedIn Profile](www.linkedin.com/in/juan-duran-bon)
+- 💬 LinkedIn: [My LinkedIn Profile](https://www.linkedin.com/in/juan-duran-bon)
 
-## 💡 Suggestions and Contributions
+## Suggestions and Contributions 💡
 
 We welcome and appreciate any suggestions or contributions to improve this project. Here are some ways you can contribute:
 
@@ -144,12 +150,12 @@ We appreciate your contributions and look forward to collaborating with you to m
 
 Feel free to reach out if you have any questions or need assistance with your contributions.
 
-## 📜 License
+## License 📜
 
 This project is licensed under the [MIT License](LICENSE).
 
-## 👋 Farewell
+## Farewell 👋
 
-Thank you for taking the time to explore this project! We hope you find it insightful and useful for your supply chain analysis needs. If you have any questions, suggestions, or just want to say hi, feel free to reach out. Your feedback and contributions are always welcome.
+Thank you for taking the time to explore this project! We hope you find it insightful and useful for your financial management needs. If you have any questions, suggestions, or just want to say hi, feel free to reach out. Your feedback and contributions are always welcome.
 
 Happy coding! 🚀📊✨
