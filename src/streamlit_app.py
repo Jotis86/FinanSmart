@@ -10,8 +10,8 @@ import os
 finance = Finance()
 
 # Define paths for images
-sidebar_image_path = os.path.join(os.path.dirname(__file__), 'images', 'sidebar_image.png')
-main_image_path = os.path.join(os.path.dirname(__file__), 'images', 'main_image.png')
+sidebar_image_path = os.path.join(os.path.dirname(__file__), 'images', 'menu.jpg')
+main_image_path = os.path.join(os.path.dirname(__file__), 'images', 'main.jpg')
 
 # Sidebar with navigation menu and image
 st.sidebar.image(sidebar_image_path, use_column_width=True)
