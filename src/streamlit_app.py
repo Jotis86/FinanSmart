@@ -193,7 +193,7 @@ elif menu == "View Tables":
     def reset_data():
         finance.incomes = []
         finance.expenses = []
-        st.success("Data has been reset successfully!")
+        st.experimental_rerun()  # Recargar la página para reflejar los cambios
 
     # Botón para descargar CSV de ingresos
     st.download_button(
