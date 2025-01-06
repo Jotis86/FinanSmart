@@ -214,7 +214,7 @@ elif menu == "View Tables":
     # Botón para resetear los datos
     if st.button("Reset Data"):
         reset_data()
-        st.experimental_rerun()
+        st.write("Data has been reset. Please refresh the page to see the changes.")
 
 # Recommendations page
 elif menu == "Recommendations":
