@@ -68,6 +68,10 @@ The project structure is organized as follows:
 
 The **FINANSMART** Streamlit application is designed to provide an intuitive and interactive interface for managing your finances. Here are the key features and how to use them:
 
+| ![Image_1](images/image.png) | ![Image_2](images/image_1.png) |
+|:----------------------------------:|:----------------------------------:|
+|           **Image_1**            |           **Image_2**            |
+
 ### Home Page 🏠
 
 The home page provides an overview of the application and its features. It includes a welcome message and a brief description of what you can do with **FINANSMART**.
