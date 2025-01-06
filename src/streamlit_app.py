@@ -16,7 +16,7 @@ main_image_path = os.path.join(os.path.dirname(__file__), 'main.jpg')
 # Sidebar with navigation menu and image
 st.sidebar.image(sidebar_image_path, use_container_width=True)
 st.sidebar.title("Navigation")
-menu = st.sidebar.radio("Go to", ["Home", "Add Income/Expense", "View Charts", "View Tables", "Recommendations"])
+menu = st.sidebar.radio("Go to", ["Home", "Add Income/Expense", "View Charts", "View Tables", "Recommendations", "Acknowledgements"])
 
 # Main image
 st.image(main_image_path, use_container_width=True)
@@ -62,7 +62,7 @@ if menu == "Home":
 
 # Add Income/Expense page
 elif menu == "Add Income/Expense":
-    st.header("Add Income and Expense")
+    st.header("Add Income and Expense 💰")
     st.write("""
     In this section, you can add your income and expenses. Select the type, category, and description, then enter the amount. This will help you keep track of your financial transactions.
     """)
@@ -108,7 +108,7 @@ elif menu == "Add Income/Expense":
 
 # View Charts page
 elif menu == "View Charts":
-    st.header("Charts")
+    st.header("Charts 📊")
     st.write("""
     In this section, you can visualize your financial data with bar charts and pie charts. This will help you understand your income and expense distribution.
     """)
@@ -145,10 +145,9 @@ elif menu == "View Charts":
 
     st.pyplot(fig)
 
-
 # View Tables page
 elif menu == "View Tables":
-    st.header("Income and Expense Tables")
+    st.header("Income and Expense Tables 📋")
     st.write("""
     In this section, you can see detailed tables of your income and expenses. This will help you analyze your financial data more effectively.
     """)
@@ -162,7 +161,7 @@ elif menu == "View Tables":
 
 # Recommendations page
 elif menu == "Recommendations":
-    st.header("Recommendations")
+    st.header("Recommendations 💡")
     st.write("""
     In this section, you can get personalized recommendations based on your financial data to help you save more and spend wisely.
     """)
@@ -171,3 +170,19 @@ elif menu == "Recommendations":
         recommendations = finance.generate_recommendations()
         for recommendation in recommendations:
             st.write(f"- {recommendation}")
+
+# Acknowledgements page
+elif menu == "Acknowledgements":
+    st.header("Acknowledgements 🙏")
+    st.write("""
+    We would like to thank the following individuals and organizations for their contributions and support:
+    
+    - **Streamlit**: For providing an amazing framework to build interactive web applications.
+    - **Pandas**: For making data manipulation and analysis easy and efficient.
+    - **Seaborn**: For creating beautiful and informative visualizations.
+    - **Matplotlib**: For being the backbone of data visualization in Python.
+    - **GitHub**: For hosting our code and enabling collaboration.
+    - **Our Users**: For their valuable feedback and support.
+
+    Thank you for using **FINANSMART**! We hope it helps you manage your finances better.
+    """)
