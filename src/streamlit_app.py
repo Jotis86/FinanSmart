@@ -192,4 +192,4 @@ elif menu == "Acknowledgements":
     st.image(acknowledgements_image_path, width=200, use_column_width=False)
 
     # Center the text below the image
-    st.markdown("<div style='text-align: center;'>Coding, Gaming, and Leveling Up</div>", unsafe_allow_html=True)
+    st.markdown("<h3 style='text-align: center;'>Coding, Gaming, and Leveling Up</h3>", unsafe_allow_html=True)
