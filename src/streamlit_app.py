@@ -43,6 +43,19 @@ st.sidebar.markdown("""
 </a>
 """, unsafe_allow_html=True)
 
+# Add space between GitHub button and LinkedIn button
+st.sidebar.write("")
+st.sidebar.write("")
+
+# Website Jotis button
+st.sidebar.markdown("""
+<a href="https://jotis86.github.io/Website/" target="_blank">
+    <button style="background-color: #0077B5; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;">
+        Website Jotis
+    </button>
+</a>
+""", unsafe_allow_html=True)
+
 # Home page
 if menu == "Home":
     st.title("Welcome to FINANSMART")
