@@ -192,4 +192,8 @@ elif menu == "Acknowledgements":
     st.image(acknowledgements_image_path, width=200)
 
     # Add text below the image
-    st.markdown("<div style='text-align: center; margin-top: 20px;'>Coding, Gaming, and Leveling Up</div>", unsafe_allow_html=True)
+    st.markdown("""
+        <div style="text-align: center; margin-top: 20px;">
+            <h3>Coding, Gaming, and Leveling Up</h3>
+        </div>
+    """, unsafe_allow_html=True)
