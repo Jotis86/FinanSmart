@@ -105,7 +105,7 @@ The recommendations section provides personalized advice based on your financial
 This section acknowledges the contributions and support from various individuals and organizations that made this project possible.
 
 ### Access the Web App 🌐
-You can access the Streamlit web app using the following URL:
+Explore the Streamlit web app by visiting the following link:
 [FINANSMART](https://finansmart-xdaqnporzlwnoz8fas2ben.streamlit.app/)
 
 ## Requirements 🛠️
