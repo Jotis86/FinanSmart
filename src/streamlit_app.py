@@ -170,7 +170,7 @@ elif menu == "View Charts":
     df_incomes = pd.DataFrame(st.session_state['incomes'])
     df_expenses = pd.DataFrame(st.session_state['expenses'])
 
-    fig, ax = plt.subplots(3, 1, figsize=(12, 18))
+    fig, ax = plt.subplots(4, 1, figsize=(12, 24))
 
     if not df_incomes.empty:
         sns.barplot(x="description", y="amount", hue="category", data=df_incomes, ax=ax[0], palette="viridis")
