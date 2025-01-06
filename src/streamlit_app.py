@@ -177,9 +177,16 @@ elif menu == "View Charts":
         ax[0].set_title("Incomes")
         ax[0].set_xlabel("Description")
         ax[0].set_ylabel("Amount")
+
+        # Pie chart for incomes
+        df_incomes_grouped = df_incomes.groupby("description").sum()
+        ax[1].pie(df_incomes_grouped["amount"], labels=df_incomes_grouped.index, autopct='%1.1f%%', startangle=140, colors=sns.color_palette("viridis", len(df_incomes_grouped)))
+        ax[1].set_title("Income Distribution")
     else:
         ax[0].text(0.5, 0.5, 'No income data available', horizontalalignment='center', verticalalignment='center')
         ax[0].set_title("Incomes")
+        ax[1].text(0.5, 0.5, 'No income data available', horizontalalignment='center', verticalalignment='center')
+        ax[1].set_title("Income Distribution")
 
     if not df_expenses.empty:
         sns.barplot(x="description", y="amount", hue="category", data=df_expenses, ax=ax[1], palette="magma")
@@ -199,8 +206,6 @@ elif menu == "View Charts":
         ax[1].set_title("Expenses")
         ax[2].text(0.5, 0.5, 'No expense data available', horizontalalignment='center', verticalalignment='center')
         ax[2].set_title("Expense Distribution")
-
-    st.pyplot(fig)
 
     st.pyplot(fig)
 
