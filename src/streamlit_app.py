@@ -185,6 +185,36 @@ elif menu == "View Tables":
     st.subheader("Expenses")
     st.dataframe(df_expenses)
 
+    # Función para convertir DataFrame a CSV
+    def convert_df_to_csv(df):
+        return df.to_csv(index=False).encode('utf-8')
+
+    # Función para resetear los datos
+    def reset_data():
+        finance.incomes = []
+        finance.expenses = []
+        st.success("Data has been reset successfully!")
+
+    # Botón para descargar CSV de ingresos
+    st.download_button(
+        label="Download Incomes as CSV",
+        data=convert_df_to_csv(df_incomes),
+        file_name='incomes.csv',
+        mime='text/csv'
+    )
+
+    # Botón para descargar CSV de gastos
+    st.download_button(
+        label="Download Expenses as CSV",
+        data=convert_df_to_csv(df_expenses),
+        file_name='expenses.csv',
+        mime='text/csv'
+    )
+
+    # Botón para resetear los datos
+    if st.button("Reset Data"):
+        reset_data()
+
 # Recommendations page
 elif menu == "Recommendations":
     st.header("Recommendations 💡")
