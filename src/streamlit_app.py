@@ -14,12 +14,12 @@ sidebar_image_path = os.path.join(os.path.dirname(__file__), 'images', 'menu.jpg
 main_image_path = os.path.join(os.path.dirname(__file__), 'images', 'main.jpg')
 
 # Sidebar with navigation menu and image
-st.sidebar.image(sidebar_image_path, use_column_width=True)
+st.sidebar.image(sidebar_image_path, use_container_width=True)
 st.sidebar.title("Navigation")
 menu = st.sidebar.radio("Go to", ["Home", "Add Income/Expense", "View Charts", "View Tables", "Recommendations"])
 
 # Main image
-st.image(main_image_path, use_column_width=True)
+st.image(main_image_path, use_container_width=True)
 
 # GitHub repository button
 st.sidebar.markdown("[GitHub Repository](https://github.com/your-repo)")
