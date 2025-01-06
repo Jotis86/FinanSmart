@@ -33,7 +33,6 @@ st.sidebar.markdown("""
 # Add space between GitHub button and LinkedIn button
 st.sidebar.write("")
 st.sidebar.write("")
-st.sidebar.write("")
 
 # LinkedIn profile button
 st.sidebar.markdown("""
