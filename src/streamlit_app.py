@@ -23,6 +23,15 @@ def load_data(file_path):
         return pd.read_csv(file_path).to_dict('records')
     return []
 
+# Function to load data from CSV
+def load_data(file_path):
+    if os.path.exists(file_path) and os.path.getsize(file_path) > 0:
+        try:
+            return pd.read_csv(file_path).to_dict('records')
+        except pd.errors.EmptyDataError:
+            return []
+    return []
+
 # Function to save data to CSV
 def save_data(data, file_path):
     pd.DataFrame(data).to_csv(file_path, index=False)
