@@ -189,7 +189,7 @@ elif menu == "Acknowledgements":
 
     # Add an image to the acknowledgements section and center it
     acknowledgements_image_path = os.path.join(os.path.dirname(__file__), 'Jotis.png')
-    st.image(acknowledgements_image_path, width=200, use_column_width=False)
+    st.image(acknowledgements_image_path, use_column_width=False)
 
     # Text below the image
-    st.markdown("# Coding, Gaming, and Leveling Up")
+    st.markdown("## Coding, Gaming, and Leveling Up")
