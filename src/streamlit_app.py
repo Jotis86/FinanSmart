@@ -214,9 +214,25 @@ elif menu == "View Tables":
     )
 
     # Botón para resetear los datos
-    if st.button("Reset Data"):
-        st.session_state['incomes'] = [].clear()
-        st.session_state['expenses'] = [].clear()
+    if st.button("Reset All Data"):
+        st.session_state['incomes'] = []
+        st.session_state['expenses'] = []
+
+    # Seleccionar y borrar ingreso
+    st.subheader("Delete Income")
+    income_index = st.number_input("Enter the index of the income to delete", min_value=0, max_value=len(st.session_state['incomes'])-1, step=1)
+    if st.button("Delete Income"):
+        if 0 <= income_index < len(st.session_state['incomes']):
+            st.session_state['incomes'].pop(income_index)
+            st.success("Income deleted successfully")
+
+    # Seleccionar y borrar gasto
+    st.subheader("Delete Expense")
+    expense_index = st.number_input("Enter the index of the expense to delete", min_value=0, max_value=len(st.session_state['expenses'])-1, step=1)
+    if st.button("Delete Expense"):
+        if 0 <= expense_index < len(st.session_state['expenses']):
+            st.session_state['expenses'].pop(expense_index)
+            st.success("Expense deleted successfully")
 
 # Recommendations page
 elif menu == "Recommendations":
