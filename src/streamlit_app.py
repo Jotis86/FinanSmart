@@ -27,7 +27,32 @@ st.sidebar.markdown("[GitHub Repository](https://github.com/your-repo)")
 # Home page
 if menu == "Home":
     st.title("Welcome to FINANSMART")
-    st.write("Use the navigation menu to manage your finances.")
+    st.write("""
+    **FINANSMART** is a comprehensive financial management application designed to help you track your income and expenses, visualize your financial data, and receive personalized recommendations to improve your financial health.
+
+    ### Features:
+    - **Add Income and Expenses** 💰: Easily add your income and expenses with predefined categories and descriptions.
+    - **View Charts** 📊: Visualize your financial data with bar charts and pie charts to understand your income and expense distribution.
+    - **View Tables** 📋: See detailed tables of your income and expenses for better analysis.
+    - **Recommendations** 💡: Get personalized recommendations based on your financial data to help you save more and spend wisely.
+    - **User-Friendly Interface** 🖥️: Navigate through the application with ease using the intuitive interface.
+    - **Data Security** 🔒: Your financial data is securely stored and managed.
+
+    ### How to Use:
+    1. **Navigate** 🧭: Use the navigation menu on the left to switch between different sections of the application.
+    2. **Add Data** ✍️: Go to the "Add Income/Expense" section to input your financial data.
+    3. **Visualize Data** 👁️: Visit the "View Charts" section to see visual representations of your financial data.
+    4. **Analyze Data** 🔍: Check the "View Tables" section for detailed tables of your income and expenses.
+    5. **Get Recommendations** 📈: Head to the "Recommendations" section to receive personalized financial advice.
+
+    ### Benefits:
+    - **Track Your Finances** 📒: Keep a detailed record of your income and expenses.
+    - **Understand Your Spending** 💸: Visualize where your money is going with easy-to-understand charts.
+    - **Improve Financial Health** 🏦: Receive actionable recommendations to improve your savings and reduce unnecessary expenses.
+    - **Make Informed Decisions** 🧠: Use the insights from the data to make better financial decisions.
+
+    Start managing your finances smarter with **FINANSMART**! 🚀
+    """)
 
 # Add Income/Expense page
 elif menu == "Add Income/Expense":
