@@ -70,7 +70,6 @@ The **FINANSMART** Streamlit application is designed to provide an intuitive and
 
 | ![Image_1](images/image.png) | ![Image_2](images/image_1.png) |
 |:----------------------------------:|:----------------------------------:|
-|           **Image_1**            |           **Image_2**            |
 
 ### Home Page 🏠
 
