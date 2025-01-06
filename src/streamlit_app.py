@@ -189,23 +189,20 @@ elif menu == "View Charts":
         ax[1].set_title("Income Distribution")
 
     if not df_expenses.empty:
-        sns.barplot(x="description", y="amount", hue="category", data=df_expenses, ax=ax[1], palette="magma")
-        ax[1].set_title("Expenses")
-        ax[1].set_xlabel("Description")
-        ax[1].set_ylabel("Amount")
+        sns.barplot(x="description", y="amount", hue="category", data=df_expenses, ax=ax[2], palette="magma")
+        ax[2].set_title("Expenses")
+        ax[2].set_xlabel("Description")
+        ax[2].set_ylabel("Amount")
 
         # Pie chart for expenses
-        if 'date' in df_expenses.columns:
-            df_expenses_grouped = df_expenses.drop(columns=["date"]).groupby("description").sum()
-        else:
-            df_expenses_grouped = df_expenses.groupby("description").sum()
-        ax[2].pie(df_expenses_grouped["amount"], labels=df_expenses_grouped.index, autopct='%1.1f%%', startangle=140, colors=sns.color_palette("magma", len(df_expenses_grouped)))
-        ax[2].set_title("Expense Distribution")
+        df_expenses_grouped = df_expenses.groupby("description").sum()
+        ax[3].pie(df_expenses_grouped["amount"], labels=df_expenses_grouped.index, autopct='%1.1f%%', startangle=140, colors=sns.color_palette("magma", len(df_expenses_grouped)))
+        ax[3].set_title("Expense Distribution")
     else:
-        ax[1].text(0.5, 0.5, 'No expense data available', horizontalalignment='center', verticalalignment='center')
-        ax[1].set_title("Expenses")
         ax[2].text(0.5, 0.5, 'No expense data available', horizontalalignment='center', verticalalignment='center')
-        ax[2].set_title("Expense Distribution")
+        ax[2].set_title("Expenses")
+        ax[3].text(0.5, 0.5, 'No expense data available', horizontalalignment='center', verticalalignment='center')
+        ax[3].set_title("Expense Distribution")
 
     st.pyplot(fig)
 
