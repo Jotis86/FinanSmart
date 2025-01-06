@@ -215,8 +215,8 @@ elif menu == "View Tables":
 
     # Botón para resetear los datos
     if st.button("Reset Data"):
-        st.session_state['incomes'] = []
-        st.session_state['expenses'] = []
+        st.session_state['incomes'] = [].clear()
+        st.session_state['expenses'] = [].clear()
 
 # Recommendations page
 elif menu == "Recommendations":
