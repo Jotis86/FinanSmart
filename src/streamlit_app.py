@@ -191,5 +191,5 @@ elif menu == "Acknowledgements":
     acknowledgements_image_path = os.path.join(os.path.dirname(__file__), 'Jotis.png')
     st.image(acknowledgements_image_path, width=200, use_column_width=False)
 
-    # Center the text below the image
-    st.markdown("<h3 style='text-align: center;'>Coding, Gaming, and Leveling Up</h3>", unsafe_allow_html=True)
+    # Text below the image
+    st.markdown("# Coding, Gaming, and Leveling Up")
