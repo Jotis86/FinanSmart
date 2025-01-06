@@ -189,7 +189,7 @@ elif menu == "View Tables":
     if st.button("Reset All Data"):
         st.session_state['incomes'] = []
         st.session_state['expenses'] = []
-        st.experimental_rerun()
+        
 
     # Seleccionar y borrar ingreso
     st.subheader("Delete Income")
@@ -199,7 +199,7 @@ elif menu == "View Tables":
             if 0 <= income_index < len(st.session_state['incomes']):
                 st.session_state['incomes'].pop(income_index)
                 st.success("Income deleted successfully")
-                st.experimental_rerun()
+                
     else:
         st.write("No incomes to delete.")
 
@@ -211,7 +211,7 @@ elif menu == "View Tables":
             if 0 <= expense_index < len(st.session_state['expenses']):
                 st.session_state['expenses'].pop(expense_index)
                 st.success("Expense deleted successfully")
-                st.experimental_rerun()
+                
     else:
         st.write("No expenses to delete.")
 
