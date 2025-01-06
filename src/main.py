@@ -82,6 +82,9 @@ class Finance:
         print(df_expenses)
 
     def generate_recommendations(self):
+        if not self.incomes and not self.expenses:
+            return ["No data available to generate recommendations. Please add your income and expenses."]
+
         balance = self.calculate_balance()
         total_incomes = sum(item["amount"] for item in self.incomes)
         total_expenses = sum(item["amount"] for item in self.expenses)
@@ -108,23 +111,50 @@ class Finance:
             recommendations.append("Review your expenses and look for areas where you can cut back to increase your savings.")
 
         # Specific recommendations by category
-        categories = ["food", "transportation", "housing", "entertainment", "health", "education"]
+        categories = ["food", "transportation", "housing", "entertainment", "health", "education", "utilities", "insurance", "debt", "savings", "gifts", "travel", "other"]
+        category_limits = {
+            "food": 15,
+            "transportation": 10,
+            "housing": 30,
+            "entertainment": 10,
+            "health": 10,
+            "education": 10,
+            "utilities": 10,
+            "insurance": 10,
+            "debt": 10,
+            "savings": 20,
+            "gifts": 5,
+            "travel": 5,
+            "other": 5
+        }
+
         for category in categories:
             total_category = sum(expense["amount"] for expense in self.expenses if expense["category"] == category)
             if total_category > 0:
                 category_percentage = (total_category / total_expenses) * 100
-                if category == "food" and category_percentage > 15:
-                    recommendations.append(f"You have spent {category_percentage:.2f}% on food. Consider planning your meals and making more efficient purchases to reduce these expenses.")
-                elif category == "transportation" and category_percentage > 10:
-                    recommendations.append(f"You have spent {category_percentage:.2f}% on transportation. Consider more economical options or carpooling to reduce these expenses.")
-                elif category == "housing" and category_percentage > 30:
-                    recommendations.append(f"You have spent {category_percentage:.2f}% on housing. Make sure this expense is within your means and look for more economical options if possible.")
-                elif category == "entertainment" and category_percentage > 10:
-                    recommendations.append(f"You have spent {category_percentage:.2f}% on entertainment. Consider reducing these expenses if they are high.")
-                elif category == "health" and category_percentage > 10:
-                    recommendations.append(f"You have spent {category_percentage:.2f}% on health. Make sure these expenses are necessary and look for more economical options if possible.")
-                elif category == "education" and category_percentage > 10:
-                    recommendations.append(f"You have spent {category_percentage:.2f}% on education. Make sure these expenses are necessary and look for more economical options if possible.")
+                limit = category_limits.get(category, 10)
+                if category_percentage > limit:
+                    recommendations.append(f"You have spent {category_percentage:.2f}% on {category}. Consider reducing these expenses if they are high.")
+
+        # Additional recommendations
+        if total_incomes > 0 and total_expenses > 0:
+            savings_rate = ((total_incomes - total_expenses) / total_incomes) * 100
+            if savings_rate < 10:
+                recommendations.append("Your savings rate is less than 10%. Try to save at least 10% of your income.")
+            elif savings_rate > 20:
+                recommendations.append("Great job! Your savings rate is more than 20%. Keep up the good work.")
+
+        if any(expense["category"] == "debt" for expense in self.expenses):
+            total_debt = sum(expense["amount"] for expense in self.expenses if expense["category"] == "debt")
+            debt_percentage = (total_debt / total_expenses) * 100
+            if debt_percentage > 20:
+                recommendations.append(f"You have spent {debt_percentage:.2f}% on debt payments. Consider strategies to reduce your debt.")
+
+        if any(expense["category"] == "savings" for expense in self.expenses):
+            total_savings = sum(expense["amount"] for expense in self.expenses if expense["category"] == "savings")
+            savings_percentage = (total_savings / total_expenses) * 100
+            if savings_percentage < 10:
+                recommendations.append(f"You have saved {savings_percentage:.2f}% of your income. Try to increase your savings rate.")
 
         return recommendations
 
