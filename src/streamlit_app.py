@@ -283,10 +283,20 @@ elif menu == "Recommendations":
     In this section, you can get personalized recommendations based on your financial data to help you save more and spend wisely.
     """)
 
+    # Load data from CSV files
+    incomes = load_data(incomes_file_path)
+    expenses = load_data(expenses_file_path)
+
     if st.button("Get Recommendations"):
-        recommendations = finance.generate_recommendations()
-        for recommendation in recommendations:
-            st.write(f"- {recommendation}")
+        if not incomes and not expenses:
+            st.write("No data available to generate recommendations. Please add your income and expenses.")
+        else:
+            finance = Finance()
+            finance.incomes = incomes
+            finance.expenses = expenses
+            recommendations = finance.generate_recommendations()
+            for recommendation in recommendations:
+                st.write(f"- {recommendation}")
 
 # Acknowledgements page
 elif menu == "Acknowledgements":
