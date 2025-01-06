@@ -22,7 +22,13 @@ menu = st.sidebar.radio("Go to", ["Home", "Add Income/Expense", "View Charts", "
 st.image(main_image_path, use_container_width=True)
 
 # GitHub repository button
-st.sidebar.markdown("[GitHub Repository](https://github.com/your-repo)")
+st.sidebar.markdown("""
+<a href="https://github.com/Jotis86/FinanSmart" target="_blank">
+    <button style="background-color: #4CAF50; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;">
+        GitHub Repository
+    </button>
+</a>
+""", unsafe_allow_html=True)
 
 # Home page
 if menu == "Home":
