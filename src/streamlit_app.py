@@ -30,6 +30,15 @@ st.sidebar.markdown("""
 </a>
 """, unsafe_allow_html=True)
 
+# LinkedIn profile button
+st.sidebar.markdown("""
+<a href="www.linkedin.com/in/juan-duran-bon" target="_blank">
+    <button style="background-color: #0077B5; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;">
+        LinkedIn Profile
+    </button>
+</a>
+""", unsafe_allow_html=True)
+
 # Home page
 if menu == "Home":
     st.title("Welcome to FINANSMART")
