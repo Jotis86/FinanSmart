@@ -187,6 +187,9 @@ elif menu == "Acknowledgements":
     Thank you for using **FINANSMART**! We hope it helps you manage your finances better.
     """)
 
+    # Add space between text and image
+    st.write("")
+
     # Add an image to the acknowledgements section and center it
     acknowledgements_image_path = os.path.join(os.path.dirname(__file__), 'Jotis.png')
     st.image(acknowledgements_image_path, width=200)
