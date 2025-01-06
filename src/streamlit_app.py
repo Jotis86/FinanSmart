@@ -217,6 +217,7 @@ elif menu == "View Tables":
     if st.button("Reset All Data"):
         st.session_state['incomes'] = []
         st.session_state['expenses'] = []
+        st.experimental_set_query_params()
         
 
     # Seleccionar y borrar ingreso
@@ -226,6 +227,7 @@ elif menu == "View Tables":
         if st.button("Delete Income"):
             if 0 <= income_index < len(st.session_state['incomes']):
                 st.session_state['incomes'].pop(income_index)
+                st.experimental_set_query_params()
                 st.success("Income deleted successfully")
     else:
         st.write("No incomes to delete.")
@@ -237,6 +239,7 @@ elif menu == "View Tables":
         if st.button("Delete Expense"):
             if 0 <= expense_index < len(st.session_state['expenses']):
                 st.session_state['expenses'].pop(expense_index)
+                st.experimental_set_query_params()
                 st.success("Expense deleted successfully")
     else:
         st.write("No expenses to delete.")
