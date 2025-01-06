@@ -187,13 +187,9 @@ elif menu == "Acknowledgements":
     Thank you for using **FINANSMART**! We hope it helps you manage your finances better.
     """)
 
-    # Add an image to the acknowledgements section
+    # Add an image to the acknowledgements section and center it
     acknowledgements_image_path = os.path.join(os.path.dirname(__file__), 'Jotis.png')
-    st.image(acknowledgements_image_path, width=200)  # Set the width to make the image smaller
+    st.image(acknowledgements_image_path, width=200, use_column_width=False)
 
-    st.write("""
-    ### Additional Thanks:
-    - **Coding**: For the endless hours of problem-solving and creativity.
-    - **Gaming**: For the fun and relaxation that keeps us balanced.
-    - **Leveling Up**: For the continuous growth and improvement in our skills and knowledge.
-    """)
+    # Center the text below the image
+    st.markdown("<div style='text-align: center;'>Coding, Gaming, and Leveling Up</div>", unsafe_allow_html=True)
