@@ -27,6 +27,7 @@
 - **View Charts** 📈: Visualize your financial data with bar charts and pie charts.
 - **View Tables** 📋: See detailed tables of your income and expenses.
 - **Get Recommendations** 📝: Receive personalized financial advice based on your data.
+- **Download Data** 📂: Download your financial data in CSV format for further analysis or backup.
 
 ## Tools Used 🛠️
 
