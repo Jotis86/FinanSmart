@@ -4,182 +4,182 @@ import seaborn as sns
 import csv
 from datetime import datetime
 
-class Finanzas:
+class Finance:
     def __init__(self):
-        self.ingresos = []
-        self.gastos = []
-        self.cargar_datos()
+        self.incomes = []
+        self.expenses = []
+        self.load_data()
 
-    def agregar_ingreso(self, monto, descripcion, categoria):
-        self.ingresos.append({"monto": monto, "descripcion": descripcion, "categoria": categoria, "fecha": datetime.now().strftime("%Y-%m-%d")})
-        self.guardar_datos()
+    def add_income(self, amount, description, category):
+        self.incomes.append({"amount": amount, "description": description, "category": category, "date": datetime.now().strftime("%Y-%m-%d")})
+        self.save_data()
 
-    def agregar_gasto(self, monto, descripcion, categoria):
-        self.gastos.append({"monto": monto, "descripcion": descripcion, "categoria": categoria, "fecha": datetime.now().strftime("%Y-%m-%d")})
-        self.guardar_datos()
+    def add_expense(self, amount, description, category):
+        self.expenses.append({"amount": amount, "description": description, "category": category, "date": datetime.now().strftime("%Y-%m-%d")})
+        self.save_data()
 
-    def calcular_balance(self):
-        total_ingresos = sum(item["monto"] for item in self.ingresos)
-        total_gastos = sum(item["monto"] for item in self.gastos)
-        return total_ingresos - total_gastos
+    def calculate_balance(self):
+        total_incomes = sum(item["amount"] for item in self.incomes)
+        total_expenses = sum(item["amount"] for item in self.expenses)
+        return total_incomes - total_expenses
 
-    def generar_graficos(self):
-        df_ingresos = pd.DataFrame(self.ingresos)
-        df_gastos = pd.DataFrame(self.gastos)
+    def generate_charts(self):
+        df_incomes = pd.DataFrame(self.incomes)
+        df_expenses = pd.DataFrame(self.expenses)
 
-        fig, ax = plt.subplots(3, 1, figsize=(12, 18))
+        fig, ax = plt.subplots(4, 1, figsize=(12, 24))
 
-        if not df_ingresos.empty:
-            sns.barplot(x="descripcion", y="monto", hue="categoria", data=df_ingresos, ax=ax[0], palette="viridis")
-            ax[0].set_title("Ingresos")
-            ax[0].set_xlabel("Descripción")
-            ax[0].set_ylabel("Monto")
+        if not df_incomes.empty:
+            sns.barplot(x="description", y="amount", hue="category", data=df_incomes, ax=ax[0], palette="viridis")
+            ax[0].set_title("Incomes")
+            ax[0].set_xlabel("Description")
+            ax[0].set_ylabel("Amount")
         else:
-            ax[0].text(0.5, 0.5, 'No hay datos de ingresos', horizontalalignment='center', verticalalignment='center')
-            ax[0].set_title("Ingresos")
+            ax[0].text(0.5, 0.5, 'No income data available', horizontalalignment='center', verticalalignment='center')
+            ax[0].set_title("Incomes")
 
-        if not df_gastos.empty:
-            sns.barplot(x="descripcion", y="monto", hue="categoria", data=df_gastos, ax=ax[1], palette="magma")
-            ax[1].set_title("Gastos")
-            ax[1].set_xlabel("Descripción")
-            ax[1].set_ylabel("Monto")
+        if not df_expenses.empty:
+            sns.barplot(x="description", y="amount", hue="category", data=df_expenses, ax=ax[1], palette="magma")
+            ax[1].set_title("Expenses")
+            ax[1].set_xlabel("Description")
+            ax[1].set_ylabel("Amount")
 
-            # Pie chart para los gastos
-            df_gastos_grouped = df_gastos.drop(columns=["fecha"]).groupby("descripcion").sum()
-            ax[2].pie(df_gastos_grouped["monto"], labels=df_gastos_grouped.index, autopct='%1.1f%%', startangle=140, colors=sns.color_palette("magma", len(df_gastos_grouped)))
-            ax[2].set_title("Distribución de Gastos")
+            # Pie chart for expenses
+            df_expenses_grouped = df_expenses.drop(columns=["date"]).groupby("description").sum()
+            ax[2].pie(df_expenses_grouped["amount"], labels=df_expenses_grouped.index, autopct='%1.1f%%', startangle=140, colors=sns.color_palette("magma", len(df_expenses_grouped)))
+            ax[2].set_title("Expense Distribution")
 
-            # Gráfico de líneas para la evolución de los gastos
-            df_gastos['fecha'] = pd.to_datetime(df_gastos['fecha'])
-            df_gastos.sort_values('fecha', inplace=True)
-            sns.lineplot(x='fecha', y='monto', hue='categoria', data=df_gastos, ax=ax[3], palette="magma", marker='o')
-            ax[3].set_title("Evolución de los Gastos")
-            ax[3].set_xlabel("Fecha")
-            ax[3].set_ylabel("Monto")
+            # Line chart for expense evolution
+            df_expenses['date'] = pd.to_datetime(df_expenses['date'])
+            df_expenses.sort_values('date', inplace=True)
+            sns.lineplot(x='date', y='amount', hue='category', data=df_expenses, ax=ax[3], palette="magma", marker='o')
+            ax[3].set_title("Expense Evolution")
+            ax[3].set_xlabel("Date")
+            ax[3].set_ylabel("Amount")
         else:
-            ax[1].text(0.5, 0.5, 'No hay datos de gastos', horizontalalignment='center', verticalalignment='center')
-            ax[1].set_title("Gastos")
-            ax[2].text(0.5, 0.5, 'No hay datos de gastos', horizontalalignment='center', verticalalignment='center')
-            ax[2].set_title("Distribución de Gastos")
-            ax[3].text(0.5, 0.5, 'No hay datos de gastos', horizontalalignment='center', verticalalignment='center')
-            ax[3].set_title("Evolución de los Gastos")
+            ax[1].text(0.5, 0.5, 'No expense data available', horizontalalignment='center', verticalalignment='center')
+            ax[1].set_title("Expenses")
+            ax[2].text(0.5, 0.5, 'No expense data available', horizontalalignment='center', verticalalignment='center')
+            ax[2].set_title("Expense Distribution")
+            ax[3].text(0.5, 0.5, 'No expense data available', horizontalalignment='center', verticalalignment='center')
+            ax[3].set_title("Expense Evolution")
 
         plt.tight_layout()
         plt.show()
 
-    def generar_tabla(self):
-        df_ingresos = pd.DataFrame(self.ingresos)
-        df_gastos = pd.DataFrame(self.gastos)
-        print("\nTabla de Ingresos:")
-        print(df_ingresos)
-        print("\nTabla de Gastos:")
-        print(df_gastos)
+    def generate_table(self):
+        df_incomes = pd.DataFrame(self.incomes)
+        df_expenses = pd.DataFrame(self.expenses)
+        print("\nIncome Table:")
+        print(df_incomes)
+        print("\nExpense Table:")
+        print(df_expenses)
 
-    def generar_recomendaciones(self):
-        balance = self.calcular_balance()
-        total_ingresos = sum(item["monto"] for item in self.ingresos)
-        total_gastos = sum(item["monto"] for item in self.gastos)
-        recomendaciones = []
+    def generate_recommendations(self):
+        balance = self.calculate_balance()
+        total_incomes = sum(item["amount"] for item in self.incomes)
+        total_expenses = sum(item["amount"] for item in self.expenses)
+        recommendations = []
 
         if balance > 0:
-            recomendaciones.append("¡Buen trabajo! Estás ahorrando dinero.")
+            recommendations.append("Great job! You are saving money.")
             if balance > 1000:
-                recomendaciones.append("Considera invertir parte de tus ahorros en opciones como fondos de inversión, acciones o bienes raíces.")
-            if total_gastos < total_ingresos * 0.5:
-                recomendaciones.append("Tus gastos son menos del 50% de tus ingresos. ¡Excelente manejo financiero!")
+                recommendations.append("Consider investing part of your savings in options like mutual funds, stocks, or real estate.")
+            if total_expenses < total_incomes * 0.5:
+                recommendations.append("Your expenses are less than 50% of your income. Excellent financial management!")
             else:
-                recomendaciones.append("Aunque tienes un balance positivo, intenta reducir tus gastos para aumentar tus ahorros.")
+                recommendations.append("Although you have a positive balance, try to reduce your expenses to increase your savings.")
         elif balance < 0:
-            recomendaciones.append("Cuidado, estás gastando más de lo que ingresas.")
+            recommendations.append("Warning, you are spending more than you earn.")
             if abs(balance) > 500:
-                recomendaciones.append("Revisa tus gastos y busca áreas donde puedas reducir. Considera hacer un presupuesto mensual.")
-            if total_gastos > total_ingresos * 0.75:
-                recomendaciones.append("Tus gastos son más del 75% de tus ingresos. Intenta reducir gastos innecesarios.")
-            if any(gasto["categoria"] == "entretenimiento" for gasto in self.gastos):
-                recomendaciones.append("Has gastado en entretenimiento. Considera reducir estos gastos si son elevados.")
+                recommendations.append("Review your expenses and look for areas where you can cut back. Consider creating a monthly budget.")
+            if total_expenses > total_incomes * 0.75:
+                recommendations.append("Your expenses are more than 75% of your income. Try to reduce unnecessary expenses.")
+            if any(expense["category"] == "entertainment" for expense in self.expenses):
+                recommendations.append("You have spent on entertainment. Consider reducing these expenses if they are high.")
         else:
-            recomendaciones.append("Estás equilibrado, pero podrías intentar ahorrar más.")
-            recomendaciones.append("Revisa tus gastos y busca áreas donde puedas reducir para aumentar tus ahorros.")
+            recommendations.append("You are balanced, but you could try to save more.")
+            recommendations.append("Review your expenses and look for areas where you can cut back to increase your savings.")
 
-        # Recomendaciones específicas por categoría
-        categorias = ["comida", "transporte", "vivienda", "entretenimiento", "salud", "educación"]
-        for categoria in categorias:
-            total_categoria = sum(gasto["monto"] for gasto in self.gastos if gasto["categoria"] == categoria)
-            if total_categoria > 0:
-                porcentaje_categoria = (total_categoria / total_gastos) * 100
-                if categoria == "comida" and porcentaje_categoria > 15:
-                    recomendaciones.append(f"Has gastado un {porcentaje_categoria:.2f}% en comida. Considera planificar tus comidas y hacer compras más eficientes para reducir estos gastos.")
-                elif categoria == "transporte" and porcentaje_categoria > 10:
-                    recomendaciones.append(f"Has gastado un {porcentaje_categoria:.2f}% en transporte. Considera opciones más económicas o compartir viajes para reducir estos gastos.")
-                elif categoria == "vivienda" and porcentaje_categoria > 30:
-                    recomendaciones.append(f"Has gastado un {porcentaje_categoria:.2f}% en vivienda. Asegúrate de que este gasto esté dentro de tus posibilidades y busca opciones más económicas si es posible.")
-                elif categoria == "entretenimiento" and porcentaje_categoria > 10:
-                    recomendaciones.append(f"Has gastado un {porcentaje_categoria:.2f}% en entretenimiento. Considera reducir estos gastos si son elevados.")
-                elif categoria == "salud" and porcentaje_categoria > 10:
-                    recomendaciones.append(f"Has gastado un {porcentaje_categoria:.2f}% en salud. Asegúrate de que estos gastos sean necesarios y busca opciones más económicas si es posible.")
-                elif categoria == "educación" and porcentaje_categoria > 10:
-                    recomendaciones.append(f"Has gastado un {porcentaje_categoria:.2f}% en educación. Asegúrate de que estos gastos sean necesarios y busca opciones más económicas si es posible.")
+        # Specific recommendations by category
+        categories = ["food", "transportation", "housing", "entertainment", "health", "education"]
+        for category in categories:
+            total_category = sum(expense["amount"] for expense in self.expenses if expense["category"] == category)
+            if total_category > 0:
+                category_percentage = (total_category / total_expenses) * 100
+                if category == "food" and category_percentage > 15:
+                    recommendations.append(f"You have spent {category_percentage:.2f}% on food. Consider planning your meals and making more efficient purchases to reduce these expenses.")
+                elif category == "transportation" and category_percentage > 10:
+                    recommendations.append(f"You have spent {category_percentage:.2f}% on transportation. Consider more economical options or carpooling to reduce these expenses.")
+                elif category == "housing" and category_percentage > 30:
+                    recommendations.append(f"You have spent {category_percentage:.2f}% on housing. Make sure this expense is within your means and look for more economical options if possible.")
+                elif category == "entertainment" and category_percentage > 10:
+                    recommendations.append(f"You have spent {category_percentage:.2f}% on entertainment. Consider reducing these expenses if they are high.")
+                elif category == "health" and category_percentage > 10:
+                    recommendations.append(f"You have spent {category_percentage:.2f}% on health. Make sure these expenses are necessary and look for more economical options if possible.")
+                elif category == "education" and category_percentage > 10:
+                    recommendations.append(f"You have spent {category_percentage:.2f}% on education. Make sure these expenses are necessary and look for more economical options if possible.")
 
-        return recomendaciones
+        return recommendations
 
-    def guardar_datos(self):
-        with open('finanzas.csv', mode='w', newline='') as file:
+    def save_data(self):
+        with open('finances.csv', mode='w', newline='') as file:
             writer = csv.writer(file)
-            writer.writerow(["tipo", "monto", "descripcion", "categoria", "fecha"])
-            for ingreso in self.ingresos:
-                writer.writerow(["ingreso", ingreso["monto"], ingreso["descripcion"], ingreso["categoria"], ingreso["fecha"]])
-            for gasto in self.gastos:
-                writer.writerow(["gasto", gasto["monto"], gasto["descripcion"], gasto["categoria"], gasto["fecha"]])
+            writer.writerow(["type", "amount", "description", "category", "date"])
+            for income in self.incomes:
+                writer.writerow(["income", income["amount"], income["description"], income["category"], income["date"]])
+            for expense in self.expenses:
+                writer.writerow(["expense", expense["amount"], expense["description"], expense["category"], expense["date"]])
 
-    def cargar_datos(self):
+    def load_data(self):
         try:
-            with open('finanzas.csv', mode='r') as file:
+            with open('finances.csv', mode='r') as file:
                 reader = csv.DictReader(file)
                 for row in reader:
-                    if row["tipo"] == "ingreso":
-                        self.ingresos.append({"monto": float(row["monto"]), "descripcion": row["descripcion"], "categoria": row["categoria"], "fecha": row["fecha"]})
-                    elif row["tipo"] == "gasto":
-                        self.gastos.append({"monto": float(row["monto"]), "descripcion": row["descripcion"], "categoria": row["categoria"], "fecha": row["fecha"]})
+                    if row["type"] == "income":
+                        self.incomes.append({"amount": float(row["amount"]), "description": row["description"], "category": row["category"], "date": row["date"]})
+                    elif row["type"] == "expense":
+                        self.expenses.append({"amount": float(row["amount"]), "description": row["description"], "category": row["category"], "date": row["date"]})
         except FileNotFoundError:
             pass
 
 def main():
-    finanzas = Finanzas()
+    finance = Finance()
 
     while True:
-        tipo = input("¿Deseas agregar un ingreso o un gasto? (ingreso/gasto): ").strip().lower()
-        if tipo not in ["ingreso", "gasto"]:
-            print("Tipo no válido. Inténtalo de nuevo.")
+        type = input("Do you want to add an income or an expense? (income/expense): ").strip().lower()
+        if type not in ["income", "expense"]:
+            print("Invalid type. Please try again.")
             continue
 
         try:
-            monto = float(input(f"Introduce el monto del {tipo}: "))
-            if monto <= 0:
-                raise ValueError("El monto debe ser positivo.")
-            descripcion = input(f"Introduce una descripción para el {tipo}: ")
-            categoria = input(f"Introduce una categoría para el {tipo}: ")
+            amount = float(input(f"Enter the amount of the {type}: "))
+            if amount <= 0:
+                raise ValueError("The amount must be positive.")
+            description = input(f"Enter a description for the {type}: ")
+            category = input(f"Enter a category for the {type}: ")
         except ValueError as e:
-            print(f"Entrada no válida: {e}. Inténtalo de nuevo.")
+            print(f"Invalid input: {e}. Please try again.")
             continue
 
-        if tipo == "ingreso":
-            finanzas.agregar_ingreso(monto, descripcion, categoria)
+        if type == "income":
+            finance.add_income(amount, description, category)
         else:
-            finanzas.agregar_gasto(monto, descripcion, categoria)
+            finance.add_expense(amount, description, category)
 
-        continuar = input("¿Deseas agregar otro ingreso o gasto? (sí/no): ").strip().lower()
-        if continuar != "sí":
+        continue_input = input("Do you want to add another income or expense? (yes/no): ").strip().lower()
+        if continue_input != "yes":
             break
 
-    balance = finanzas.calcular_balance()
-    print(f"\nTu balance mensual es: {balance}")
+    balance = finance.calculate_balance()
+    print(f"\nYour monthly balance is: {balance}")
 
-    finanzas.generar_graficos()
-    finanzas.generar_tabla()
-    recomendaciones = finanzas.generar_recomendaciones()
-    print("\nRecomendaciones:")
-    for recomendacion in recomendaciones:
-        print(f"- {recomendacion}")
+    finance.generate_charts()
+    finance.generate_table()
+    recommendations = finance.generate_recommendations()
+    print("\nRecommendations:")
+    for recommendation in recommendations:
+        print(f"- {recommendation}")
 
 if __name__ == "__main__":
     main()
