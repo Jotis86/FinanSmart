@@ -19,7 +19,7 @@ expenses_file_path = os.path.join(os.path.dirname(__file__), 'expenses.csv')
 
 # Function to load data from CSV
 def load_data(file_path):
-    if os.path.exists(file_path):
+    if os.path.exists(file_path) and os.path.getsize(file_path) > 0:
         return pd.read_csv(file_path).to_dict('records')
     return []
 
