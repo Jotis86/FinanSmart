@@ -186,3 +186,14 @@ elif menu == "Acknowledgements":
 
     Thank you for using **FINANSMART**! We hope it helps you manage your finances better.
     """)
+
+    # Add an image to the acknowledgements section
+    acknowledgements_image_path = os.path.join(os.path.dirname(__file__), 'Jotis.png')
+    st.image(acknowledgements_image_path, use_container_width=True)
+
+    st.write("""
+    ### Additional Thanks:
+    - **Coding**: For the endless hours of problem-solving and creativity.
+    - **Gaming**: For the fun and relaxation that keeps us balanced.
+    - **Leveling Up**: For the continuous growth and improvement in our skills and knowledge.
+    """)
