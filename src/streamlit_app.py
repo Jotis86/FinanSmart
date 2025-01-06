@@ -51,7 +51,7 @@ st.sidebar.write("")
 st.sidebar.markdown("""
 <a href="https://jotis86.github.io/Website/" target="_blank">
     <button style="background-color: #8A2BE2; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;">
-        Website Jotis
+        Juan Duran Website
     </button>
 </a>
 """, unsafe_allow_html=True)
