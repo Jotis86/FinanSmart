@@ -118,7 +118,7 @@ if menu == "Home":
         st.session_state['expenses'] = []
         save_data(st.session_state['incomes'], incomes_file_path)
         save_data(st.session_state['expenses'], expenses_file_path)
-        st.session_state['menu'] = "Add Income/Expense"
+        st.experimental_set_query_params(menu="Add Income/Expense")
 
 # Add Income/Expense page
 elif menu == "Add Income/Expense":
