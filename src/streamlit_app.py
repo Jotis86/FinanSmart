@@ -112,6 +112,14 @@ if menu == "Home":
     Start managing your finances smarter with **FINANSMART**! 🚀
     """)
 
+    # Button to reset all data and navigate to Add Income/Expense section
+    if st.button("Start to add Income/Expense"):
+        st.session_state['incomes'] = []
+        st.session_state['expenses'] = []
+        save_data(st.session_state['incomes'], incomes_file_path)
+        save_data(st.session_state['expenses'], expenses_file_path)
+        st.session_state['menu'] = "Add Income/Expense"
+
 # Add Income/Expense page
 elif menu == "Add Income/Expense":
     st.header("Add Income and Expense 💰")
