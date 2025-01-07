@@ -119,7 +119,16 @@ if menu == "Home":
         save_data(st.session_state['incomes'], incomes_file_path)
         save_data(st.session_state['expenses'], expenses_file_path)
         st.session_state['menu'] = "Add Income/Expense"
-        st.experimental_set_query_params(menu="Add Income/Expense")
+
+    # HTML button to navigate to Add Income/Expense section
+    st.markdown("""
+        <form action="?menu=Add Income/Expense" method="get">
+            <button type="submit" style="background-color: #4CAF50; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;">
+                Start to add Income/Expense
+            </button>
+        </form>
+    """, unsafe_allow_html=True)
+        
 
 # Add Income/Expense page
 elif menu == "Add Income/Expense":
