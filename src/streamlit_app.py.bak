@@ -93,20 +93,11 @@ if authentication_status:
         pd.DataFrame(data).to_csv(file_path, index=False)
 
     # Function to export data to Excel
-    def to_excel(dataframes=None):
+    def to_excel():
         output = BytesIO()
-        
-        if dataframes is None:
-            # Compatibilidad hacia atrás
-            with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
-                pd.DataFrame(st.session_state['incomes']).to_excel(writer, sheet_name='Incomes', index=False)
-                pd.DataFrame(st.session_state['expenses']).to_excel(writer, sheet_name='Expenses', index=False)
-        else:
-            # Versión con diccionario de dataframes
-            with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
-                for sheet_name, df in dataframes.items():
-                    df.to_excel(writer, sheet_name=sheet_name, index=False)
-        
+        with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
+            pd.DataFrame(st.session_state['incomes']).to_excel(writer, sheet_name='Incomes', index=False)
+            pd.DataFrame(st.session_state['expenses']).to_excel(writer, sheet_name='Expenses', index=False)
         return output.getvalue()
 
     # Function to calculate monthly totals
@@ -1243,145 +1234,145 @@ if authentication_status:
                         ax.set_title(f"Goal Progress")
                         ax.axis('equal')
                         st.pyplot(fig)
+        else:
+            st.info("You don't have any financial goals yet. Create one in the 'Add New Goal' tab.")
+        
+        # Tab 2: Add New Goal
+        with goals_tabs[1]:
+            st.subheader("Create a New Financial Goal")
+            
+            with st.form("new_goal_form"):
+                # Basic goal information
+                goal_name = st.text_input("Goal Name")
+                goal_amount = st.number_input("Target Amount ($)", min_value=1.0, step=100.0)
+                goal_deadline = st.date_input("Deadline", min_value=datetime.now().date())
+                
+                # Goal category
+                goal_category = st.selectbox(
+                    "Goal Category",
+                    ["saving", "expense_reduction", "debt_payoff", "income_increase", "other"]
+                )
+                
+                # Additional fields based on category
+                if goal_category == "expense_reduction":
+                    # For expense reduction, select which expense category to reduce
+                    expense_categories = ["Food", "Transportation", "Housing", "Entertainment", "Health", 
+                                         "Education", "Utilities", "Insurance", "Debt", "Travel", "Other"]
+                    subcategory = st.selectbox("Expense Category to Reduce", expense_categories)
+                else:
+                    subcategory = ""
+                
+                # Notes
+                goal_notes = st.text_area("Notes (optional)")
+                
+                # Submit button
+                submitted = st.form_submit_button("Create Goal")
+                
+                if submitted:
+                    if goal_name and goal_amount > 0:
+                        # Create new goal
+                        new_goal = {
+                            "name": goal_name,
+                            "target_amount": goal_amount,
+                            "deadline": goal_deadline.strftime("%Y-%m-%d"),
+                            "category": goal_category,
+                            "subcategory": subcategory,
+                            "notes": goal_notes,
+                            "created_date": datetime.now().strftime("%Y-%m-%d"),
+                            "progress": 0
+                        }
+                        
+                        # Add to session state and save
+                        st.session_state['goals'].append(new_goal)
+                        save_data(st.session_state['goals'], goals_file_path)
+                        
+                        st.success(f"Goal '{goal_name}' created successfully!")
+                    else:
+                        st.error("Please provide a name and a valid target amount for your goal.")
+        
+        # Tab 3: Goal Progress
+        with goals_tabs[2]:
+            st.subheader("Goal Progress Tracking")
+            
+            if st.session_state['goals']:
+                # Allow user to select a goal to update manually
+                goal_names = [goal.get('name', f"Goal {i+1}") for i, goal in enumerate(st.session_state['goals'])]
+                selected_goal_idx = st.selectbox("Select a goal to update", range(len(goal_names)), format_func=lambda x: goal_names[x])
+                
+                selected_goal = st.session_state['goals'][selected_goal_idx]
+                
+                st.markdown("<div class='card'>", unsafe_allow_html=True)
+                st.subheader(selected_goal.get('name', 'Unnamed Goal'))
+                
+                # Show current progress
+                current_progress = selected_goal.get('progress', 0)
+                st.write(f"Current progress: {current_progress:.1f}%")
+                
+                # Allow manual progress update
+                new_progress = st.slider(
+                    "Update progress", 
+                    min_value=0.0, 
+                    max_value=100.0, 
+                    value=float(current_progress),
+                    step=1.0
+                )
+                
+                # Add notes about the progress update
+                progress_notes = st.text_area("Progress notes (optional)")
+                
+                if st.button("Update Progress"):
+                    # Update the goal's progress
+                    st.session_state['goals'][selected_goal_idx]['progress'] = new_progress
+                    
+                    # Add notes if provided
+                    if progress_notes:
+                        if 'progress_history' not in st.session_state['goals'][selected_goal_idx]:
+                            st.session_state['goals'][selected_goal_idx]['progress_history'] = []
+                        
+                        st.session_state['goals'][selected_goal_idx]['progress_history'].append({
+                            "date": datetime.now().strftime("%Y-%m-%d"),
+                            "progress": new_progress,
+                            "notes": progress_notes
+                        })
+                    
+                    # Save updated goals
+                    save_data(st.session_state['goals'], goals_file_path)
+                    
+                    st.success(f"Progress for '{selected_goal.get('name')}' updated successfully!")
+                
+                # Show progress history if available
+                if 'progress_history' in selected_goal and selected_goal['progress_history']:
+                    st.subheader("Progress History")
+                    
+                    history = selected_goal['progress_history']
+                    
+                    # Create a DataFrame for display
+                    df_history = pd.DataFrame(history)
+                    st.dataframe(df_history, use_container_width=True)
+                    
+                    # Visualize progress over time if there are multiple entries
+                    if len(history) > 1:
+                        fig, ax = plt.subplots(figsize=(10, 5))
+                        
+                        # Convert dates to datetime for proper sorting
+                        df_history['date'] = pd.to_datetime(df_history['date'])
+                        df_history = df_history.sort_values('date')
+                        
+                        ax.plot(df_history['date'], df_history['progress'], marker='o', linestyle='-')
+                        ax.set_title('Goal Progress Over Time')
+                        ax.set_xlabel('Date')
+                        ax.set_ylabel('Progress (%)')
+                        ax.grid(True, linestyle='--', alpha=0.7)
+                        
+                        # Rotate x-axis labels for better readability
+                        plt.xticks(rotation=45)
+                        plt.tight_layout()
+                        
+                        st.pyplot(fig)
+                
+                st.markdown("</div>", unsafe_allow_html=True)
             else:
                 st.info("You don't have any financial goals yet. Create one in the 'Add New Goal' tab.")
-            
-                # Tab 2: Add New Goal
-                with goals_tabs[1]:
-                    st.subheader("Create a New Financial Goal")
-                    
-                    with st.form("new_goal_form"):
-                        # Basic goal information
-                        goal_name = st.text_input("Goal Name")
-                        goal_amount = st.number_input("Target Amount ($)", min_value=1.0, step=100.0)
-                        goal_deadline = st.date_input("Deadline", min_value=datetime.now().date())
-                        
-                        # Goal category
-                        goal_category = st.selectbox(
-                            "Goal Category",
-                            ["saving", "expense_reduction", "debt_payoff", "income_increase", "other"]
-                        )
-                        
-                        # Additional fields based on category
-                        if goal_category == "expense_reduction":
-                            # For expense reduction, select which expense category to reduce
-                            expense_categories = ["Food", "Transportation", "Housing", "Entertainment", "Health", 
-                                                "Education", "Utilities", "Insurance", "Debt", "Travel", "Other"]
-                            subcategory = st.selectbox("Expense Category to Reduce", expense_categories)
-                        else:
-                            subcategory = ""
-                        
-                        # Notes
-                        goal_notes = st.text_area("Notes (optional)")
-                        
-                        # Submit button
-                        submitted = st.form_submit_button("Create Goal")
-                        
-                        if submitted:
-                            if goal_name and goal_amount > 0:
-                                # Create new goal
-                                new_goal = {
-                                    "name": goal_name,
-                                    "target_amount": goal_amount,
-                                    "deadline": goal_deadline.strftime("%Y-%m-%d"),
-                                    "category": goal_category,
-                                    "subcategory": subcategory,
-                                    "notes": goal_notes,
-                                    "created_date": datetime.now().strftime("%Y-%m-%d"),
-                                    "progress": 0
-                                }
-                                
-                                # Add to session state and save
-                                st.session_state['goals'].append(new_goal)
-                                save_data(st.session_state['goals'], goals_file_path)
-                                
-                                st.success(f"Goal '{goal_name}' created successfully!")
-                            else:
-                                st.error("Please provide a name and a valid target amount for your goal.")
-                
-                # Tab 3: Goal Progress
-                with goals_tabs[2]:
-                    st.subheader("Goal Progress Tracking")
-                    
-                    if st.session_state['goals']:
-                        # Allow user to select a goal to update manually
-                        goal_names = [goal.get('name', f"Goal {i+1}") for i, goal in enumerate(st.session_state['goals'])]
-                        selected_goal_idx = st.selectbox("Select a goal to update", range(len(goal_names)), format_func=lambda x: goal_names[x])
-                        
-                        selected_goal = st.session_state['goals'][selected_goal_idx]
-                        
-                        st.markdown("<div class='card'>", unsafe_allow_html=True)
-                        st.subheader(selected_goal.get('name', 'Unnamed Goal'))
-                        
-                        # Show current progress
-                        current_progress = selected_goal.get('progress', 0)
-                        st.write(f"Current progress: {current_progress:.1f}%")
-                        
-                        # Allow manual progress update
-                        new_progress = st.slider(
-                            "Update progress", 
-                            min_value=0.0, 
-                            max_value=100.0, 
-                            value=float(current_progress),
-                            step=1.0
-                        )
-                        
-                        # Add notes about the progress update
-                        progress_notes = st.text_area("Progress notes (optional)")
-                        
-                        if st.button("Update Progress"):
-                            # Update the goal's progress
-                            st.session_state['goals'][selected_goal_idx]['progress'] = new_progress
-                            
-                            # Add notes if provided
-                            if progress_notes:
-                                if 'progress_history' not in st.session_state['goals'][selected_goal_idx]:
-                                    st.session_state['goals'][selected_goal_idx]['progress_history'] = []
-                                
-                                st.session_state['goals'][selected_goal_idx]['progress_history'].append({
-                                    "date": datetime.now().strftime("%Y-%m-%d"),
-                                    "progress": new_progress,
-                                    "notes": progress_notes
-                                })
-                            
-                            # Save updated goals
-                            save_data(st.session_state['goals'], goals_file_path)
-                            
-                            st.success(f"Progress for '{selected_goal.get('name')}' updated successfully!")
-                        
-                        # Show progress history if available
-                        if 'progress_history' in selected_goal and selected_goal['progress_history']:
-                            st.subheader("Progress History")
-                            
-                            history = selected_goal['progress_history']
-                            
-                            # Create a DataFrame for display
-                            df_history = pd.DataFrame(history)
-                            st.dataframe(df_history, use_container_width=True)
-                            
-                            # Visualize progress over time if there are multiple entries
-                            if len(history) > 1:
-                                fig, ax = plt.subplots(figsize=(10, 5))
-                                
-                                # Convert dates to datetime for proper sorting
-                                df_history['date'] = pd.to_datetime(df_history['date'])
-                                df_history = df_history.sort_values('date')
-                                
-                                ax.plot(df_history['date'], df_history['progress'], marker='o', linestyle='-')
-                                ax.set_title('Goal Progress Over Time')
-                                ax.set_xlabel('Date')
-                                ax.set_ylabel('Progress (%)')
-                                ax.grid(True, linestyle='--', alpha=0.7)
-                                
-                                # Rotate x-axis labels for better readability
-                                plt.xticks(rotation=45)
-                                plt.tight_layout()
-                                
-                                st.pyplot(fig)
-                        
-                        st.markdown("</div>", unsafe_allow_html=True)
-                    else:
-                        st.info("You don't have any financial goals yet. Create one in the 'Add New Goal' tab.")
 
     # Recommendations page
     elif menu == "Recommendations":
@@ -1710,7 +1701,3 @@ if authentication_status:
                 st.error(f"Error importing data: {str(e)}")
         
         st.markdown("</div>", unsafe_allow_html=True)
-
-else:
-    # No mostrar nada aquí, ya que la página de autenticación ya se muestra en la función autenticar_usuario
-    pass
