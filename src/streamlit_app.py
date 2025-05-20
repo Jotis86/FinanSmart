@@ -161,12 +161,6 @@ menu = st.sidebar.radio("Go to", [
     "Acknowledgements"
 ])
 
-# Dark mode toggle in sidebar
-dark_mode = st.sidebar.checkbox("Dark Mode", value=st.session_state['dark_mode'])
-if dark_mode != st.session_state['dark_mode']:
-    st.session_state['dark_mode'] = dark_mode
-    st.experimental_rerun()
-
 # Main image (only on Dashboard)
 if menu == "Dashboard":
     st.image(main_image_path, use_container_width=True)
