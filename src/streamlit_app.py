@@ -60,7 +60,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # Autenticar al usuario
-authenticator, authentication_status = autenticar_usuario()
+_, authentication_status = autenticar_usuario()
 
 # Solo mostrar la aplicación si el usuario está autenticado
 if authentication_status:
@@ -173,7 +173,9 @@ if authentication_status:
     
     # Botón para cerrar sesión
     if st.sidebar.button("Cerrar Sesión"):
-        authenticator.logout("Cerrar Sesión", "sidebar")
+        st.session_state.authentication_status = None
+        st.session_state.name = None
+        st.session_state.username = None
         st.rerun()
     
     st.sidebar.title("Navigation")

@@ -1,7 +1,8 @@
 import streamlit as st
-import streamlit_authenticator as stauth
 import yaml
 import os
+import bcrypt
+from yaml.loader import SafeLoader
 from usuarios import cargar_configuracion, crear_usuario, crear_estructura_archivos_usuario, inicializar_sistema
 from verificar_config import inicializar_config
 
@@ -39,9 +40,15 @@ def mostrar_pagina_registro():
                 else:
                     st.error(message)
 
+def verificar_password(password, hashed_password):
+    """
+    Verifica si la contraseña es correcta
+    """
+    return bcrypt.checkpw(password.encode(), hashed_password.encode())
+
 def autenticar_usuario():
     """
-    Maneja la autenticación de usuarios
+    Maneja la autenticación de usuarios con un sistema simplificado
     """
     # Primero verificamos la configuración
     inicializar_config()
@@ -52,60 +59,71 @@ def autenticar_usuario():
     # Cargar la configuración de usuarios
     config = cargar_configuracion()
     
-    # Configurar el autenticador - sin manejo de excepciones
-    authenticator = stauth.Authenticate(
-        config['credentials'],
-        config['cookie']['name'],
-        config['cookie']['key'],
-        config['cookie']['expiry_days']
-    )
+    # Variables para devolver
+    authenticator = None
+    authentication_status = None
     
-    # Mostrar el formulario de login directamente en el cuerpo principal
-    # Usamos location="main" específicamente como único parámetro reconocido
-    name, authentication_status, username = authenticator.login(location="main")
+    # Inicializar variables de sesión si no existen
+    if 'authentication_status' not in st.session_state:
+        st.session_state['authentication_status'] = None
     
-    # Guardar variables en session_state
-    st.session_state["authentication_status"] = authentication_status
-    st.session_state["name"] = name
-    st.session_state["username"] = username
-    
-    # Determinar qué mostrar según el estado de autenticación
-    if authentication_status is False:
-        st.error('Usuario o contraseña incorrectos')
+    if 'username' not in st.session_state:
+        st.session_state['username'] = None
         
-        # Opción para registrarse
-        if 'mostrar_registro' not in st.session_state:
-            st.session_state.mostrar_registro = False
+    if 'name' not in st.session_state:
+        st.session_state['name'] = None
+    
+    # Si ya está autenticado, no hacer nada más
+    if st.session_state['authentication_status'] == True:
+        return None, True
+    
+    # Mostrar formulario de login
+    st.title("Iniciar Sesión")
+    
+    with st.form("login_form"):
+        username = st.text_input("Usuario")
+        password = st.text_input("Contraseña", type="password")
+        submit = st.form_submit_button("Iniciar Sesión")
+    
+    if submit:
+        if username in config['credentials']['usernames']:
+            # Verificar contraseña
+            user_data = config['credentials']['usernames'][username]
+            stored_password = user_data['password']
             
-        col1, col2, col3 = st.columns([1, 2, 1])
-        with col2:
-            if not st.session_state.mostrar_registro:
-                if st.button("¿No tienes cuenta? Regístrate"):
-                    st.session_state.mostrar_registro = True
+            if verificar_password(password, stored_password):
+                # Autenticación exitosa
+                st.session_state['authentication_status'] = True
+                st.session_state['username'] = username
+                st.session_state['name'] = user_data['name']
+                authentication_status = True
+                st.rerun()
             else:
-                if st.button("Volver al inicio de sesión"):
-                    st.session_state.mostrar_registro = False
-        
-        if st.session_state.mostrar_registro:
-            mostrar_pagina_registro()
-            
-    elif authentication_status is None:
-        st.warning('Por favor ingresa tu usuario y contraseña')
-        
-        # Opción para registrarse
-        if 'mostrar_registro' not in st.session_state:
-            st.session_state.mostrar_registro = False
-            
-        col1, col2, col3 = st.columns([1, 2, 1])
-        with col2:
-            if not st.session_state.mostrar_registro:
-                if st.button("¿No tienes cuenta? Regístrate"):
-                    st.session_state.mostrar_registro = True
-            else:
-                if st.button("Volver al inicio de sesión"):
-                    st.session_state.mostrar_registro = False
-        
-        if st.session_state.mostrar_registro:
-            mostrar_pagina_registro()
+                # Contraseña incorrecta
+                st.session_state['authentication_status'] = False
+                authentication_status = False
+                st.error("Usuario o contraseña incorrectos")
+        else:
+            # Usuario no existe
+            st.session_state['authentication_status'] = False
+            authentication_status = False
+            st.error("Usuario o contraseña incorrectos")
     
-    return authenticator, authentication_status 
+    # Opción para registrarse
+    if 'mostrar_registro' not in st.session_state:
+        st.session_state.mostrar_registro = False
+        
+    col1, col2, col3 = st.columns([1, 2, 1])
+    with col2:
+        if not st.session_state.mostrar_registro:
+            if st.button("¿No tienes cuenta? Regístrate"):
+                st.session_state.mostrar_registro = True
+        else:
+            if st.button("Volver al inicio de sesión"):
+                st.session_state.mostrar_registro = False
+    
+    if st.session_state.mostrar_registro:
+        mostrar_pagina_registro()
+    
+    # Devolver valores para compatibilidad
+    return None, st.session_state['authentication_status'] 
