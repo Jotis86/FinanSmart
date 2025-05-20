@@ -61,7 +61,8 @@ def autenticar_usuario():
     )
     
     # Mostrar el formulario de login directamente en el cuerpo principal
-    name, authentication_status, username = authenticator.login("Login", "main")
+    # Usamos location="main" específicamente como único parámetro reconocido
+    name, authentication_status, username = authenticator.login(location="main")
     
     # Guardar variables en session_state
     st.session_state["authentication_status"] = authentication_status
