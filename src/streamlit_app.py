@@ -1969,3 +1969,110 @@ elif menu == "Settings":
             st.write(f"**Matplotlib Version:** {plt.matplotlib.__version__}")
             st.write(f"**Seaborn Version:** {sns.__version__}")
             st.write(f"**NumPy Version:** {np.__version__}")
+
+
+# Acknowledgements page
+elif menu == "Acknowledgements":
+    st.markdown("<h1 class='main-header'>Acknowledgements</h1>", unsafe_allow_html=True)
+    
+    st.markdown("<div class='card'>", unsafe_allow_html=True)
+    st.write("""
+    We would like to thank the following individuals and organizations for their contributions and support:
+    
+    - **Streamlit**: For providing an amazing framework to build interactive web applications.
+    - **Pandas**: For making data manipulation and analysis easy and efficient.
+    - **Seaborn**: For creating beautiful and informative visualizations.
+    - **Matplotlib**: For being the backbone of data visualization in Python.
+    - **GitHub**: For hosting our code and enabling collaboration.
+    - **Our Users**: For their valuable feedback and support.
+    
+    Thank you for using **FINANSMART**! We hope it helps you manage your finances better.
+    """)
+    st.markdown("</div>", unsafe_allow_html=True)
+    
+    # Team information
+    st.markdown("<h2 class='sub-header'>Meet the Creator</h2>", unsafe_allow_html=True)
+    
+    col1, col2 = st.columns([1, 2])
+    
+    with col1:
+        # Add an image
+        acknowledgements_image_path = os.path.join(os.path.dirname(__file__), 'Jotis.png')
+        if os.path.exists(acknowledgements_image_path):
+            st.image(acknowledgements_image_path, width=200)
+        else:
+            st.info("Creator image not found")
+    
+    with col2:
+        st.markdown("""
+        ### Juan Duran
+        
+        Juan is a passionate developer with expertise in finance and data analysis. 
+        He created FINANSMART to help people better understand and manage their personal finances.
+        
+        Connect with Juan:
+        - [LinkedIn](https://www.linkedin.com/in/juan-duran-bon)
+        - [Personal Website](https://jotis86.github.io/Website/)
+        - [GitHub](https://github.com/Jotis86)
+        
+        **Coding, Gaming, and Leveling Up**
+        """)
+    
+    # Development journey
+    st.markdown("<h2 class='sub-header'>Development Journey</h2>", unsafe_allow_html=True)
+    
+    st.markdown("<div class='card'>", unsafe_allow_html=True)
+    st.write("""
+    FINANSMART started as a personal project to solve a common problem - managing personal finances effectively.
+    The application has evolved through multiple iterations, incorporating user feedback and new features.
+    
+    ### Key Milestones:
+    - **Initial Concept**: Basic expense tracking functionality
+    - **Data Visualization**: Added charts and graphs for better insights
+    - **Financial Analysis**: Incorporated recommendations and financial health metrics
+    - **User Experience**: Enhanced UI/UX for easier navigation and use
+    
+    We're committed to continuously improving FINANSMART with new features and enhancements.
+    """)
+    st.markdown("</div>", unsafe_allow_html=True)
+    
+    # Feedback and contribution section
+    st.markdown("<h2 class='sub-header'>Feedback & Contributions</h2>", unsafe_allow_html=True)
+    
+    st.markdown("<div class='card'>", unsafe_allow_html=True)
+    st.write("""
+    We value your feedback and suggestions for improving FINANSMART. If you have ideas, feature requests, 
+    or bug reports, please feel free to reach out or contribute to the project.
+    
+    You can:
+    - Submit issues on our [GitHub repository](https://github.com/Jotis86/FinanSmart/issues)
+    - Send feedback via email (contact details on the GitHub page)
+    - Contribute code via pull requests
+    
+    Your input helps make FINANSMART better for everyone!
+    """)
+    st.markdown("</div>", unsafe_allow_html=True)
+    
+    # Contact form (placeholder)
+    st.markdown("<h2 class='sub-header'>Contact Us</h2>", unsafe_allow_html=True)
+    
+    with st.form("contact_form"):
+        st.write("Have questions, suggestions, or feedback? Let us know!")
+        
+        name = st.text_input("Your Name")
+        email = st.text_input("Your Email")
+        message_type = st.selectbox("Message Type", ["Feature Request", "Bug Report", "Question", "Other"])
+        message = st.text_area("Your Message", height=150)
+        
+        submitted = st.form_submit_button("Send Message")
+        
+        if submitted:
+            # This is a placeholder - in a real app, you would process the form submission
+            st.success("Thank you for your message! While this is a demo and messages aren't actually sent, we appreciate your interest.")
+    
+    # Footer
+    st.markdown("""
+    <div style="text-align: center; margin-top: 50px; color: #888;">
+        <p>FINANSMART © 2023 - Made with ❤️ by Juan Duran</p>
+    </div>
+    """, unsafe_allow_html=True)
