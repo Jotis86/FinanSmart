@@ -477,3 +477,403 @@ elif menu == "Add Income/Expense":
             st.write("No transactions yet.")
         
         st.markdown("</div>", unsafe_allow_html=True)
+
+
+# View Charts page
+elif menu == "View Charts":
+    st.markdown("<h1 class='main-header'>Financial Charts</h1>", unsafe_allow_html=True)
+    
+    st.markdown("<div class='card'>", unsafe_allow_html=True)
+    st.write("""
+    Visualize your financial data with various charts. These visualizations will help you 
+    understand your income and expense patterns better.
+    """)
+    st.markdown("</div>", unsafe_allow_html=True)
+    
+    # Create tabs for different chart types
+    chart_tabs = st.tabs(["Income & Expense Overview", "Category Breakdown", "Time Trends", "Custom Analysis"])
+    
+    # Get the data
+    df_incomes = pd.DataFrame(st.session_state['incomes'])
+    df_expenses = pd.DataFrame(st.session_state['expenses'])
+    
+    # Add date conversion if dataframes aren't empty
+    if not df_incomes.empty and 'date' in df_incomes.columns:
+        df_incomes['date'] = pd.to_datetime(df_incomes['date'])
+    
+    if not df_expenses.empty and 'date' in df_expenses.columns:
+        df_expenses['date'] = pd.to_datetime(df_expenses['date'])
+    
+    # Tab 1: Income & Expense Overview
+    with chart_tabs[0]:
+        st.subheader("Income vs. Expense Overview")
+        
+        # Create figure with 2 subplots
+        if not df_incomes.empty or not df_expenses.empty:
+            fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 6))
+            
+            # Income vs Expense Bar Chart
+            total_income = df_incomes['amount'].sum() if not df_incomes.empty else 0
+            total_expense = df_expenses['amount'].sum() if not df_expenses.empty else 0
+            
+            ax1.bar(['Income', 'Expense'], [total_income, total_expense], color=['green', 'red'])
+            ax1.set_title('Total Income vs Expense')
+            ax1.set_ylabel('Amount ($)')
+            
+            # Add value labels on the bars
+            for i, v in enumerate([total_income, total_expense]):
+                ax1.text(i, v + 5, f"${v:.2f}", ha='center')
+            
+            # Income vs Expense Pie Chart
+            balance = total_income - total_expense
+            savings_rate = (balance / total_income * 100) if total_income > 0 else 0
+            
+            ax2.pie([total_income, total_expense], 
+                   labels=['Income', 'Expense'], 
+                   autopct='%1.1f%%',
+                   colors=['green', 'red'],
+                   startangle=90)
+            ax2.set_title(f'Income vs Expense (Savings Rate: {savings_rate:.1f}%)')
+            
+            plt.tight_layout()
+            st.pyplot(fig)
+            
+            # Additional stats
+            st.markdown("<div class='card'>", unsafe_allow_html=True)
+            col1, col2, col3 = st.columns(3)
+            with col1:
+                st.metric("Total Income", f"${total_income:.2f}")
+            
+            with col2:
+                st.metric("Total Expenses", f"${total_expense:.2f}")
+            
+            with col3:
+                st.metric("Balance", f"${balance:.2f}", delta=f"{savings_rate:.1f}% of income" if total_income > 0 else "N/A")
+            st.markdown("</div>", unsafe_allow_html=True)
+        else:
+            st.info("No data available to generate charts. Please add your income and expenses.")
+    
+    # Tab 2: Category Breakdown
+    with chart_tabs[1]:
+        st.subheader("Category Breakdown")
+        
+        # Select income or expense for category analysis
+        category_type = st.radio("Select data to analyze", ["Income", "Expense"])
+        
+        if category_type == "Income" and not df_incomes.empty:
+            df = df_incomes
+            color_palette = "viridis"
+        elif category_type == "Expense" and not df_expenses.empty:
+            df = df_expenses
+            color_palette = "magma"
+        else:
+            st.info(f"No {category_type.lower()} data available to generate charts.")
+            df = pd.DataFrame()
+        
+        if not df.empty:
+            # Create figure with 2 subplots
+            fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 6))
+            
+            # Category Bar Chart
+            category_totals = df.groupby('category')['amount'].sum().reset_index()
+            
+            # Sort by amount for better visualization
+            category_totals = category_totals.sort_values('amount', ascending=False)
+            
+            sns.barplot(x='category', y='amount', data=category_totals, palette=color_palette, ax=ax1)
+            ax1.set_title(f'{category_type} by Category')
+            ax1.set_xlabel('Category')
+            ax1.set_ylabel('Amount ($)')
+            ax1.tick_params(axis='x', rotation=45)
+            
+            # Add value labels
+            for i, v in enumerate(category_totals['amount']):
+                ax1.text(i, v + 5, f"${v:.0f}", ha='center')
+            
+            # Category Pie Chart
+            ax2.pie(category_totals['amount'], 
+                   labels=category_totals['category'], 
+                   autopct='%1.1f%%',
+                   colors=sns.color_palette(color_palette, len(category_totals)),
+                   startangle=90)
+            ax2.set_title(f'{category_type} Distribution by Category')
+            
+            plt.tight_layout()
+            st.pyplot(fig)
+            
+            # Display category breakdown as a table
+            st.subheader(f"{category_type} Breakdown by Category")
+            
+            # Calculate percentages
+            total = category_totals['amount'].sum()
+            category_totals['percentage'] = category_totals['amount'] / total * 100
+            category_totals = category_totals.sort_values('amount', ascending=False)
+            
+            # Format table
+            category_totals['amount'] = category_totals['amount'].apply(lambda x: f"${x:.2f}")
+            category_totals['percentage'] = category_totals['percentage'].apply(lambda x: f"{x:.1f}%")
+            
+            st.table(category_totals)
+        
+    # Tab 3: Time Trends
+    with chart_tabs[2]:
+        st.subheader("Time Trends Analysis")
+        
+        # Filter options
+        time_period = st.selectbox("Select time period", ["Monthly", "Weekly", "Daily"])
+        
+        # Get time series data
+        if not df_incomes.empty and 'date' in df_incomes.columns:
+            if time_period == "Monthly":
+                df_incomes['period'] = df_incomes['date'].dt.strftime('%Y-%m')
+            elif time_period == "Weekly":
+                df_incomes['period'] = df_incomes['date'].dt.strftime('%Y-%W')
+            else:  # Daily
+                df_incomes['period'] = df_incomes['date'].dt.strftime('%Y-%m-%d')
+                
+            incomes_by_period = df_incomes.groupby('period')['amount'].sum()
+        else:
+            incomes_by_period = pd.Series(dtype=float)
+        
+        if not df_expenses.empty and 'date' in df_expenses.columns:
+            if time_period == "Monthly":
+                df_expenses['period'] = df_expenses['date'].dt.strftime('%Y-%m')
+            elif time_period == "Weekly":
+                df_expenses['period'] = df_expenses['date'].dt.strftime('%Y-%W')
+            else:  # Daily
+                df_expenses['period'] = df_expenses['date'].dt.strftime('%Y-%m-%d')
+                
+            expenses_by_period = df_expenses.groupby('period')['amount'].sum()
+        else:
+            expenses_by_period = pd.Series(dtype=float)
+        
+        # Create time series chart
+        if not incomes_by_period.empty or not expenses_by_period.empty:
+            # Get all periods for consistent x-axis
+            all_periods = sorted(set(list(incomes_by_period.index) + list(expenses_by_period.index)))
+            
+            # Create a DataFrame with all periods
+            df_time = pd.DataFrame(index=all_periods)
+            df_time['income'] = incomes_by_period
+            df_time['expense'] = expenses_by_period
+            
+            # Fill NaN with 0
+            df_time.fillna(0, inplace=True)
+            
+            # Calculate balance
+            df_time['balance'] = df_time['income'] - df_time['expense']
+            
+            # Plot time series
+            fig, ax = plt.subplots(figsize=(12, 6))
+            
+            ax.plot(df_time.index, df_time['income'], marker='o', linestyle='-', color='green', label='Income')
+            ax.plot(df_time.index, df_time['expense'], marker='o', linestyle='-', color='red', label='Expense')
+            ax.plot(df_time.index, df_time['balance'], marker='o', linestyle='-', color='blue', label='Balance')
+            
+            ax.set_title(f'{time_period} Financial Trend')
+            ax.set_xlabel('Period')
+            ax.set_ylabel('Amount ($)')
+            ax.legend()
+            
+            # Rotate x-axis labels for better readability
+            plt.xticks(rotation=45)
+            plt.tight_layout()
+            
+            st.pyplot(fig)
+            
+            # Show the data as a table
+            st.subheader(f"{time_period} Financial Data")
+            
+            # Format the table
+            display_df = df_time.copy()
+            display_df['income'] = display_df['income'].apply(lambda x: f"${x:.2f}")
+            display_df['expense'] = display_df['expense'].apply(lambda x: f"${x:.2f}")
+            display_df['balance'] = display_df['balance'].apply(lambda x: f"${x:.2f}")
+            
+            st.table(display_df)
+        else:
+            st.info("Not enough time series data to generate charts. Please add dated income and expenses.")
+    
+    # Tab 4: Custom Analysis
+    with chart_tabs[3]:
+        st.subheader("Custom Financial Analysis")
+        
+        st.markdown("<div class='card'>", unsafe_allow_html=True)
+        st.write("""
+        Here you can perform a more detailed analysis of your financial data by selecting specific criteria.
+        """)
+        st.markdown("</div>", unsafe_allow_html=True)
+        
+        # Select data type
+        data_type = st.radio("Select data to analyze", ["Income", "Expense", "Both"])
+        
+        if data_type == "Income" and not df_incomes.empty:
+            df_analysis = df_incomes.copy()
+            analysis_possible = True
+        elif data_type == "Expense" and not df_expenses.empty:
+            df_analysis = df_expenses.copy()
+            analysis_possible = True
+        elif data_type == "Both" and (not df_incomes.empty or not df_expenses.empty):
+            # Combine income and expense data
+            if not df_incomes.empty:
+                df_incomes_copy = df_incomes.copy()
+                df_incomes_copy['type'] = 'Income'
+            else:
+                df_incomes_copy = pd.DataFrame()
+            
+            if not df_expenses.empty:
+                df_expenses_copy = df_expenses.copy()
+                df_expenses_copy['type'] = 'Expense'
+            else:
+                df_expenses_copy = pd.DataFrame()
+            
+            # Combine the data
+            if not df_incomes_copy.empty and not df_expenses_copy.empty:
+                df_analysis = pd.concat([df_incomes_copy, df_expenses_copy])
+            elif not df_incomes_copy.empty:
+                df_analysis = df_incomes_copy
+            else:
+                df_analysis = df_expenses_copy
+                
+            analysis_possible = True
+        else:
+            st.info(f"No data available for the selected type. Please add your income and expenses.")
+            analysis_possible = False
+        
+        if analysis_possible:
+            # Date range filter
+            if 'date' in df_analysis.columns:
+                min_date = df_analysis['date'].min().date()
+                max_date = df_analysis['date'].max().date()
+                
+                date_range = st.date_input(
+                    "Select date range",
+                    value=(min_date, max_date),
+                    min_value=min_date,
+                    max_value=max_date
+                )
+                
+                if len(date_range) == 2:
+                    start_date, end_date = date_range
+                    df_analysis = df_analysis[
+                        (df_analysis['date'].dt.date >= start_date) &
+                        (df_analysis['date'].dt.date <= end_date)
+                    ]
+            
+            # Select categories to include
+            if 'category' in df_analysis.columns:
+                all_categories = df_analysis['category'].unique().tolist()
+                selected_categories = st.multiselect(
+                    "Select categories to include",
+                    options=all_categories,
+                    default=all_categories
+                )
+                
+                if selected_categories:
+                    df_analysis = df_analysis[df_analysis['category'].isin(selected_categories)]
+            
+            # Generate custom chart
+            if not df_analysis.empty:
+                chart_type = st.selectbox(
+                    "Select chart type",
+                    options=["Bar Chart", "Pie Chart", "Line Chart", "Histogram"]
+                )
+                
+                fig, ax = plt.subplots(figsize=(12, 6))
+                
+                if chart_type == "Bar Chart":
+                    # Group data
+                    if 'category' in df_analysis.columns:
+                        group_by = st.selectbox("Group by", ["category", "description"])
+                        df_grouped = df_analysis.groupby(group_by)['amount'].sum().reset_index()
+                        
+                        # Sort by amount for better visualization
+                        df_grouped = df_grouped.sort_values('amount', ascending=False)
+                        
+                        # Plot bar chart
+                        sns.barplot(x=group_by, y='amount', data=df_grouped, palette='viridis', ax=ax)
+                        ax.set_title(f'{data_type} by {group_by.capitalize()}')
+                        ax.set_xlabel(group_by.capitalize())
+                        ax.set_ylabel('Amount ($)')
+                        ax.tick_params(axis='x', rotation=45)
+                        
+                        # Add value labels
+                        for i, v in enumerate(df_grouped['amount']):
+                            ax.text(i, v + 5, f"${v:.0f}", ha='center')
+                    else:
+                        st.info("Not enough categorical data for a bar chart.")
+                
+                elif chart_type == "Pie Chart":
+                    # Group data
+                    if 'category' in df_analysis.columns:
+                        group_by = st.selectbox("Group by", ["category", "description"])
+                        df_grouped = df_analysis.groupby(group_by)['amount'].sum()
+                        
+                        # Plot pie chart
+                        ax.pie(df_grouped, 
+                              labels=df_grouped.index, 
+                              autopct='%1.1f%%',
+                              colors=sns.color_palette('viridis', len(df_grouped)),
+                              startangle=90)
+                        ax.set_title(f'{data_type} Distribution by {group_by.capitalize()}')
+                    else:
+                        st.info("Not enough categorical data for a pie chart.")
+                
+                elif chart_type == "Line Chart":
+                    # Check if we have date data
+                    if 'date' in df_analysis.columns:
+                        # Group by time period
+                        time_period = st.selectbox("Time period", ["Daily", "Weekly", "Monthly"])
+                        
+                        if time_period == "Daily":
+                            df_analysis['period'] = df_analysis['date'].dt.strftime('%Y-%m-%d')
+                        elif time_period == "Weekly":
+                            df_analysis['period'] = df_analysis['date'].dt.strftime('%Y-%W')
+                        else:  # Monthly
+                            df_analysis['period'] = df_analysis['date'].dt.strftime('%Y-%m')
+                        
+                        # Group by period
+                        if data_type == "Both" and 'type' in df_analysis.columns:
+                            # Group by period and type
+                            df_grouped = df_analysis.groupby(['period', 'type'])['amount'].sum().reset_index()
+                            
+                            # Get periods sorted
+                            periods = sorted(df_grouped['period'].unique())
+                            
+                            # Plot lines by type
+                            for t in df_grouped['type'].unique():
+                                df_type = df_grouped[df_grouped['type'] == t]
+                                ax.plot(df_type['period'], df_type['amount'], 
+                                       marker='o', linestyle='-', 
+                                       label=t)
+                        else:
+                            # Group by period only
+                            df_grouped = df_analysis.groupby('period')['amount'].sum()
+                            ax.plot(df_grouped.index, df_grouped.values, 
+                                   marker='o', linestyle='-')
+                        
+                        ax.set_title(f'{time_period} {data_type} Trend')
+                        ax.set_xlabel('Period')
+                        ax.set_ylabel('Amount ($)')
+                        ax.legend()
+                        
+                        # Rotate x-axis labels for better readability
+                        plt.xticks(rotation=45)
+                    else:
+                        st.info("No date data available for a line chart.")
+                
+                elif chart_type == "Histogram":
+                    # Plot histogram of amounts
+                    sns.histplot(df_analysis['amount'], bins=20, kde=True, ax=ax)
+                    ax.set_title(f'{data_type} Amount Distribution')
+                    ax.set_xlabel('Amount ($)')
+                    ax.set_ylabel('Frequency')
+                
+                plt.tight_layout()
+                st.pyplot(fig)
+                
+                # Show the data
+                st.subheader("Filtered Data")
+                st.dataframe(df_analysis)
+            else:
+                st.info("No data available for the selected filters.")
