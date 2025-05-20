@@ -19,9 +19,7 @@ def crear_config():
                 'admin': {
                     'name': 'Administrador',
                     'email': 'admin@example.com',
-                    'password': password_hash,
-                    'failed_login_attempts': 0,
-                    'logged_in': False
+                    'password': password_hash
                 }
             }
         },

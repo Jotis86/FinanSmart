@@ -61,8 +61,8 @@ def autenticar_usuario():
             config['cookie']['expiry_days']
         )
         
-        # Mostrar la página de inicio de sesión
-        name, authentication_status, username = authenticator.login("Inicio de Sesión", "main")
+        # Mostrar la página de inicio de sesión - versión 0.3.1
+        name, authentication_status, username = authenticator.login('Inicio de Sesión', 'main')
     except Exception as e:
         st.error(f"Error en autenticación: {str(e)}")
         return None, None
