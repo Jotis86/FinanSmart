@@ -197,3 +197,146 @@ st.sidebar.markdown("""
     </button>
 </a>
 """, unsafe_allow_html=True)
+
+
+# Dashboard page
+if menu == "Dashboard":
+    st.markdown("<h1 class='main-header'>FINANSMART Dashboard</h1>", unsafe_allow_html=True)
+    
+    # Current date information
+    today = datetime.now()
+    current_month = today.strftime("%B")
+    current_year = today.year
+    
+    # Calculate summary metrics
+    total_income = sum(item["amount"] for item in st.session_state['incomes'])
+    total_expense = sum(item["amount"] for item in st.session_state['expenses'])
+    balance = total_income - total_expense
+    
+    # Current month data
+    current_month_incomes = [
+        income for income in st.session_state['incomes'] 
+        if 'date' in income and datetime.strptime(income['date'], '%Y-%m-%d').month == today.month
+        and datetime.strptime(income['date'], '%Y-%m-%d').year == today.year
+    ]
+    
+    current_month_expenses = [
+        expense for expense in st.session_state['expenses'] 
+        if 'date' in expense and datetime.strptime(expense['date'], '%Y-%m-%d').month == today.month
+        and datetime.strptime(expense['date'], '%Y-%m-%d').year == today.year
+    ]
+    
+    current_month_income = sum(item["amount"] for item in current_month_incomes)
+    current_month_expense = sum(item["amount"] for item in current_month_expenses)
+    current_month_balance = current_month_income - current_month_expense
+    
+    # Display key metrics in three columns
+    col1, col2, col3 = st.columns(3)
+    
+    with col1:
+        st.markdown("<div class='card'>", unsafe_allow_html=True)
+        st.markdown("<h2 class='sub-header'>Total Balance</h2>", unsafe_allow_html=True)
+        balance_color = "green" if balance >= 0 else "red"
+        st.markdown(f"<div class='metric-card'><div class='metric-value' style='color:{balance_color}'>${balance:.2f}</div><div class='metric-label'>All-time Balance</div></div>", unsafe_allow_html=True)
+        st.markdown("</div>", unsafe_allow_html=True)
+    
+    with col2:
+        st.markdown("<div class='card'>", unsafe_allow_html=True)
+        st.markdown("<h2 class='sub-header'>Total Income</h2>", unsafe_allow_html=True)
+        st.markdown(f"<div class='metric-card'><div class='metric-value' style='color:blue'>${total_income:.2f}</div><div class='metric-label'>All-time Income</div></div>", unsafe_allow_html=True)
+        st.markdown("</div>", unsafe_allow_html=True)
+    
+    with col3:
+        st.markdown("<div class='card'>", unsafe_allow_html=True)
+        st.markdown("<h2 class='sub-header'>Total Expenses</h2>", unsafe_allow_html=True)
+        st.markdown(f"<div class='metric-card'><div class='metric-value' style='color:purple'>${total_expense:.2f}</div><div class='metric-label'>All-time Expenses</div></div>", unsafe_allow_html=True)
+        st.markdown("</div>", unsafe_allow_html=True)
+    
+    # Current month metrics
+    st.markdown("<h2 class='sub-header' style='margin-top: 30px;'>Current Month Overview</h2>", unsafe_allow_html=True)
+    
+    col1, col2, col3 = st.columns(3)
+    
+    with col1:
+        st.markdown("<div class='card'>", unsafe_allow_html=True)
+        st.markdown(f"<h3>{current_month} Balance</h3>", unsafe_allow_html=True)
+        month_balance_color = "green" if current_month_balance >= 0 else "red"
+        st.markdown(f"<div class='metric-card'><div class='metric-value' style='color:{month_balance_color}'>${current_month_balance:.2f}</div><div class='metric-label'>{current_month} {current_year}</div></div>", unsafe_allow_html=True)
+        st.markdown("</div>", unsafe_allow_html=True)
+    
+    with col2:
+        st.markdown("<div class='card'>", unsafe_allow_html=True)
+        st.markdown(f"<h3>{current_month} Income</h3>", unsafe_allow_html=True)
+        st.markdown(f"<div class='metric-card'><div class='metric-value' style='color:blue'>${current_month_income:.2f}</div><div class='metric-label'>{current_month} {current_year}</div></div>", unsafe_allow_html=True)
+        st.markdown("</div>", unsafe_allow_html=True)
+    
+    with col3:
+        st.markdown("<div class='card'>", unsafe_allow_html=True)
+        st.markdown(f"<h3>{current_month} Expenses</h3>", unsafe_allow_html=True)
+        st.markdown(f"<div class='metric-card'><div class='metric-value' style='color:purple'>${current_month_expense:.2f}</div><div class='metric-label'>{current_month} {current_year}</div></div>", unsafe_allow_html=True)
+        st.markdown("</div>", unsafe_allow_html=True)
+    
+    # Monthly trends
+    st.markdown("<h2 class='sub-header' style='margin-top: 30px;'>Monthly Trends</h2>", unsafe_allow_html=True)
+    
+    # Calculate monthly data
+    monthly_incomes = calculate_monthly_totals(st.session_state['incomes'])
+    monthly_expenses = calculate_monthly_totals(st.session_state['expenses'])
+    
+    # Only render if we have data
+    if not monthly_incomes.empty or not monthly_expenses.empty:
+        fig, ax = plt.subplots(figsize=(10, 6))
+        
+        # Plot income
+        if not monthly_incomes.empty:
+            ax.bar(monthly_incomes['month_name'], monthly_incomes['amount'], alpha=0.6, label='Income', color='blue')
+        
+        # Plot expenses
+        if not monthly_expenses.empty:
+            ax.bar(monthly_expenses['month_name'], monthly_expenses['amount'], alpha=0.6, label='Expenses', color='red')
+        
+        ax.set_title('Monthly Income vs Expenses')
+        ax.set_xlabel('Month')
+        ax.set_ylabel('Amount ($)')
+        ax.legend()
+        
+        # Rotate x-axis labels for better readability
+        plt.xticks(rotation=45)
+        plt.tight_layout()
+        
+        st.pyplot(fig)
+    else:
+        st.info("No monthly data available yet. Add income and expenses to see trends.")
+    
+    # Recent transactions
+    st.markdown("<h2 class='sub-header' style='margin-top: 30px;'>Recent Transactions</h2>", unsafe_allow_html=True)
+    
+    # Combine and sort transactions
+    all_transactions = []
+    
+    for income in st.session_state['incomes']:
+        transaction = income.copy()
+        transaction['type'] = 'Income'
+        all_transactions.append(transaction)
+    
+    for expense in st.session_state['expenses']:
+        transaction = expense.copy()
+        transaction['type'] = 'Expense'
+        all_transactions.append(transaction)
+    
+    # Sort by date (most recent first)
+    all_transactions.sort(key=lambda x: datetime.strptime(x.get('date', '1900-01-01'), '%Y-%m-%d'), reverse=True)
+    
+    # Display recent transactions
+    if all_transactions:
+        # Take only the 5 most recent transactions
+        recent_transactions = all_transactions[:5]
+        
+        # Create a dataframe for display
+        df_recent = pd.DataFrame(recent_transactions)
+        df_recent = df_recent[['date', 'type', 'category', 'description', 'amount']]
+        
+        # Style the dataframe
+        st.dataframe(df_recent, height=200)
+    else:
+        st.info("No transactions available yet. Add income and expenses to see recent transactions.")
