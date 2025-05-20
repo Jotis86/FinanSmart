@@ -1647,3 +1647,325 @@ elif menu == "Recommendations":
                 st.info("Unable to generate recommendations with the current data.")
     else:
         st.info("Click the button above to generate personalized financial recommendations.")
+
+
+
+# Export Data page
+elif menu == "Export Data":
+    st.markdown("<h1 class='main-header'>Export Your Financial Data</h1>", unsafe_allow_html=True)
+    
+    st.markdown("<div class='card'>", unsafe_allow_html=True)
+    st.write("""
+    Export your financial data in different formats for backup or external analysis. 
+    This allows you to keep a secure copy of your data or use it in other applications.
+    """)
+    st.markdown("</div>", unsafe_allow_html=True)
+    
+    # Options for what to export
+    st.subheader("Select Data to Export")
+    export_incomes = st.checkbox("Income Data", value=True)
+    export_expenses = st.checkbox("Expense Data", value=True)
+    export_goals = st.checkbox("Financial Goals", value=True)
+    
+    # Format options
+    export_format = st.radio("Export Format", ["CSV", "Excel"], horizontal=True)
+    
+    # Prepare data for export
+    if st.button("Generate Export Files"):
+        has_data = False
+        
+        if export_incomes and st.session_state['incomes']:
+            df_incomes = pd.DataFrame(st.session_state['incomes'])
+            has_data = True
+        else:
+            df_incomes = pd.DataFrame()
+        
+        if export_expenses and st.session_state['expenses']:
+            df_expenses = pd.DataFrame(st.session_state['expenses'])
+            has_data = True
+        else:
+            df_expenses = pd.DataFrame()
+        
+        if export_goals and st.session_state['goals']:
+            df_goals = pd.DataFrame(st.session_state['goals'])
+            has_data = True
+        else:
+            df_goals = pd.DataFrame()
+        
+        if has_data:
+            if export_format == "Excel":
+                # Export to Excel
+                excel_file = to_excel({
+                    'Incomes': df_incomes if export_incomes else pd.DataFrame(),
+                    'Expenses': df_expenses if export_expenses else pd.DataFrame(),
+                    'Goals': df_goals if export_goals else pd.DataFrame()
+                })
+                
+                filename = f"finansmart_data_{datetime.now().strftime('%Y%m%d')}.xlsx"
+                
+                st.download_button(
+                    label="Download Excel File",
+                    data=excel_file,
+                    file_name=filename,
+                    mime="application/vnd.ms-excel"
+                )
+            else:
+                # Export as individual CSV files
+                st.subheader("Download CSV Files")
+                
+                if export_incomes and not df_incomes.empty:
+                    csv_incomes = df_incomes.to_csv(index=False)
+                    st.download_button(
+                        label="Download Income Data CSV",
+                        data=csv_incomes,
+                        file_name=f"finansmart_incomes_{datetime.now().strftime('%Y%m%d')}.csv",
+                        mime="text/csv"
+                    )
+                
+                if export_expenses and not df_expenses.empty:
+                    csv_expenses = df_expenses.to_csv(index=False)
+                    st.download_button(
+                        label="Download Expense Data CSV",
+                        data=csv_expenses,
+                        file_name=f"finansmart_expenses_{datetime.now().strftime('%Y%m%d')}.csv",
+                        mime="text/csv"
+                    )
+                
+                if export_goals and not df_goals.empty:
+                    csv_goals = df_goals.to_csv(index=False)
+                    st.download_button(
+                        label="Download Goals CSV",
+                        data=csv_goals,
+                        file_name=f"finansmart_goals_{datetime.now().strftime('%Y%m%d')}.csv",
+                        mime="text/csv"
+                    )
+        else:
+            st.warning("No data selected for export or data is empty.")
+    
+    # Data Import section
+    st.markdown("<h2 class='sub-header' style='margin-top: 30px;'>Import Data</h2>", unsafe_allow_html=True)
+    
+    st.markdown("<div class='card'>", unsafe_allow_html=True)
+    st.write("""
+    Import previously exported data or data from other sources. 
+    Note: This will replace your current data for the selected categories.
+    """)
+    
+    import_type = st.radio("What data would you like to import?", ["Incomes", "Expenses", "Goals"])
+    uploaded_file = st.file_uploader(f"Upload {import_type} CSV file", type="csv")
+    
+    if uploaded_file is not None:
+        try:
+            # Read the uploaded CSV
+            imported_df = pd.read_csv(uploaded_file)
+            
+            # Show preview of imported data
+            st.subheader("Data Preview")
+            st.dataframe(imported_df.head())
+            
+            # Confirm import
+            if st.button(f"Import {import_type} Data"):
+                # Convert to list of dictionaries
+                imported_data = imported_df.to_dict('records')
+                
+                # Update session state based on import type
+                if import_type == "Incomes":
+                    st.session_state['incomes'] = imported_data
+                    save_data(st.session_state['incomes'], incomes_file_path)
+                elif import_type == "Expenses":
+                    st.session_state['expenses'] = imported_data
+                    save_data(st.session_state['expenses'], expenses_file_path)
+                else:  # Goals
+                    st.session_state['goals'] = imported_data
+                    save_data(st.session_state['goals'], goals_file_path)
+                
+                st.success(f"{import_type} data imported successfully!")
+                st.rerun()
+                
+        except Exception as e:
+            st.error(f"Error importing data: {str(e)}")
+    
+    st.markdown("</div>", unsafe_allow_html=True)
+
+# Settings page
+elif menu == "Settings":
+    st.markdown("<h1 class='main-header'>Application Settings</h1>", unsafe_allow_html=True)
+    
+    st.markdown("<div class='card'>", unsafe_allow_html=True)
+    st.write("""
+    Customize your FINANSMART experience by adjusting various settings.
+    """)
+    st.markdown("</div>", unsafe_allow_html=True)
+    
+    # Create settings tabs
+    settings_tabs = st.tabs(["Appearance", "Categories", "Notifications", "About"])
+    
+    # Appearance Settings
+    with settings_tabs[0]:
+        st.subheader("Appearance Settings")
+        
+        # Dark mode toggle
+        dark_mode = st.checkbox("Dark Mode", value=st.session_state['dark_mode'])
+        if dark_mode != st.session_state['dark_mode']:
+            st.session_state['dark_mode'] = dark_mode
+            st.rerun()
+        
+        # Currency format
+        st.subheader("Currency Format")
+        currency_symbol = st.selectbox(
+            "Currency Symbol",
+            ["$", "€", "£", "¥", "₹", "₽", "₩", "C$", "A$", "Other"],
+            index=0
+        )
+        
+        if currency_symbol == "Other":
+            custom_symbol = st.text_input("Enter custom currency symbol")
+            if custom_symbol:
+                currency_symbol = custom_symbol
+        
+        st.session_state['currency_symbol'] = currency_symbol
+        
+        # Date format
+        st.subheader("Date Format")
+        date_format = st.selectbox(
+            "Date Format",
+            ["YYYY-MM-DD", "MM/DD/YYYY", "DD/MM/YYYY", "Month DD, YYYY"],
+            index=0
+        )
+        
+        st.session_state['date_format'] = date_format
+        
+        # Chart colors
+        st.subheader("Chart Color Scheme")
+        color_scheme = st.selectbox(
+            "Default Color Scheme for Charts",
+            ["viridis", "plasma", "inferno", "magma", "cividis", "blues", "greens", "reds", "purples", "oranges"],
+            index=0
+        )
+        
+        st.session_state['color_scheme'] = color_scheme
+        
+        # Preview the color scheme
+        fig, ax = plt.subplots(figsize=(8, 2))
+        colors = sns.color_palette(color_scheme, 10)
+        for i, color in enumerate(colors):
+            ax.add_patch(plt.Rectangle((i, 0), 1, 1, color=color))
+        ax.set_xlim(0, 10)
+        ax.set_ylim(0, 1)
+        ax.set_xticks([])
+        ax.set_yticks([])
+        ax.set_title(f"{color_scheme.capitalize()} Color Scheme")
+        st.pyplot(fig)
+    
+    # Categories Settings
+    with settings_tabs[1]:
+        st.subheader("Customize Categories")
+        
+        # Income categories
+        st.subheader("Income Categories")
+        default_income_categories = ["Salary", "Bonus", "Investment", "Other"]
+        
+        if "custom_income_categories" not in st.session_state:
+            st.session_state['custom_income_categories'] = default_income_categories.copy()
+        
+        # Show current categories and allow editing
+        st.write("Current Income Categories:")
+        categories_text = st.text_area(
+            "Edit Income Categories (one per line)",
+            value="\n".join(st.session_state['custom_income_categories']),
+            height=150
+        )
+        
+        # Save button for income categories
+        if st.button("Save Income Categories"):
+            new_categories = [cat.strip() for cat in categories_text.split("\n") if cat.strip()]
+            if new_categories:
+                st.session_state['custom_income_categories'] = new_categories
+                st.success("Income categories updated successfully!")
+            else:
+                st.error("Please provide at least one category.")
+        
+        # Reset to default button
+        if st.button("Reset Income Categories to Default"):
+            st.session_state['custom_income_categories'] = default_income_categories.copy()
+            st.success("Income categories reset to defaults!")
+            st.rerun()
+        
+        # Expense categories
+        st.subheader("Expense Categories")
+        default_expense_categories = [
+            "Food", "Transportation", "Housing", "Entertainment", "Health", 
+            "Education", "Utilities", "Insurance", "Debt", "Savings", "Gifts", 
+            "Travel", "Other"
+        ]
+        
+        if "custom_expense_categories" not in st.session_state:
+            st.session_state['custom_expense_categories'] = default_expense_categories.copy()
+        
+        # Show current categories and allow editing
+        st.write("Current Expense Categories:")
+        expense_categories_text = st.text_area(
+            "Edit Expense Categories (one per line)",
+            value="\n".join(st.session_state['custom_expense_categories']),
+            height=200
+        )
+        
+        # Save button for expense categories
+        if st.button("Save Expense Categories"):
+            new_categories = [cat.strip() for cat in expense_categories_text.split("\n") if cat.strip()]
+            if new_categories:
+                st.session_state['custom_expense_categories'] = new_categories
+                st.success("Expense categories updated successfully!")
+            else:
+                st.error("Please provide at least one category.")
+        
+        # Reset to default button
+        if st.button("Reset Expense Categories to Default"):
+            st.session_state['custom_expense_categories'] = default_expense_categories.copy()
+            st.success("Expense categories reset to defaults!")
+            st.rerun()
+    
+    # Notifications Settings
+    with settings_tabs[2]:
+        st.subheader("Notification Settings")
+        
+        st.info("Notification settings are currently in development. This feature will be available in a future update.")
+        
+        # Placeholder for future notification settings
+        st.checkbox("Enable email notifications", value=False, disabled=True)
+        st.checkbox("Send monthly summary reports", value=False, disabled=True)
+        st.checkbox("Alert when expenses exceed budget", value=False, disabled=True)
+        st.checkbox("Remind about upcoming bill payments", value=False, disabled=True)
+        
+        st.text_input("Email address for notifications", disabled=True)
+    
+    # About Settings
+    with settings_tabs[3]:
+        st.subheader("About FINANSMART")
+        
+        st.markdown("""
+        **FINANSMART** is a comprehensive financial management application designed to help you track your income and expenses, 
+        visualize your financial data, and receive personalized recommendations to improve your financial health.
+        
+        **Version:** 1.0.0
+        
+        **Created by:** Juan Duran
+        
+        **GitHub Repository:** [github.com/Jotis86/FinanSmart](https://github.com/Jotis86/FinanSmart)
+        
+        **License:** MIT License
+        """)
+        
+        st.subheader("System Information")
+        
+        # Display basic system info
+        col1, col2 = st.columns(2)
+        with col1:
+            st.write(f"**Python Version:** 3.x")
+            st.write(f"**Streamlit Version:** {st.__version__}")
+            st.write(f"**Pandas Version:** {pd.__version__}")
+        
+        with col2:
+            st.write(f"**Matplotlib Version:** {plt.matplotlib.__version__}")
+            st.write(f"**Seaborn Version:** {sns.__version__}")
+            st.write(f"**NumPy Version:** {np.__version__}")
