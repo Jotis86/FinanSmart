@@ -43,9 +43,6 @@ def inicializar_config():
             'expiry_days': 30,
             'key': 'finansmart_auth',
             'name': 'finansmart_cookie'
-        },
-        'preauthorized': {
-            'emails': []
         }
     }
     

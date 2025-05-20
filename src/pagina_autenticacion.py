@@ -58,8 +58,7 @@ def autenticar_usuario():
             config['credentials'],
             config['cookie']['name'],
             config['cookie']['key'],
-            config['cookie']['expiry_days'],
-            config.get('preauthorized', {'emails': []})
+            config['cookie']['expiry_days']
         )
         
         # Mostrar la página de inicio de sesión
