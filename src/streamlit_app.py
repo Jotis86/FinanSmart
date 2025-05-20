@@ -1456,3 +1456,194 @@ elif menu == "Financial Goals":
             st.markdown("</div>", unsafe_allow_html=True)
         else:
             st.info("You don't have any financial goals yet. Create one in the 'Add New Goal' tab.")
+
+# Recommendations page
+elif menu == "Recommendations":
+    st.markdown("<h1 class='main-header'>Financial Recommendations</h1>", unsafe_allow_html=True)
+    
+    st.markdown("<div class='card'>", unsafe_allow_html=True)
+    st.write("""
+    Get personalized financial recommendations based on your income and expense data. 
+    These insights can help you improve your financial health and make better financial decisions.
+    """)
+    st.markdown("</div>", unsafe_allow_html=True)
+    
+    # Load data into finance class for analysis
+    finance.incomes = st.session_state['incomes']
+    finance.expenses = st.session_state['expenses']
+    
+    if st.button("Generate Recommendations"):
+        # Check if there's data available
+        if not finance.incomes and not finance.expenses:
+            st.warning("No financial data available to generate recommendations. Please add your income and expenses first.")
+        else:
+            # Get recommendations
+            recommendations = finance.generate_recommendations()
+            
+            if recommendations:
+                # Create some analytics for display
+                total_income = sum(item["amount"] for item in finance.incomes)
+                total_expense = sum(item["amount"] for item in finance.expenses)
+                balance = total_income - total_expense
+                
+                # Financial health score (simple calculation)
+                if total_income > 0:
+                    savings_rate = max(0, balance) / total_income * 100
+                    debt_payments = sum(item["amount"] for item in finance.expenses if item.get("category") == "Debt")
+                    debt_ratio = (debt_payments / total_income * 100) if total_income > 0 else 0
+                    
+                    # Score based on savings rate and debt ratio
+                    # Higher savings rate is good, lower debt ratio is good
+                    financial_health = min(100, max(0, 50 + (savings_rate/2) - (debt_ratio/10)))
+                else:
+                    financial_health = 0
+                
+                # Display financial health score
+                st.markdown("<div class='card'>", unsafe_allow_html=True)
+                st.subheader("Your Financial Health Score")
+                
+                # Determine score color and status
+                if financial_health >= 80:
+                    score_color = "green"
+                    status = "Excellent"
+                elif financial_health >= 60:
+                    score_color = "blue"
+                    status = "Good"
+                elif financial_health >= 40:
+                    score_color = "orange"
+                    status = "Fair"
+                else:
+                    score_color = "red"
+                    status = "Needs Improvement"
+                
+                # Display score as a gauge chart
+                fig, ax = plt.subplots(figsize=(6, 3))
+                
+                # Create gauge chart using a partial pie chart
+                gauge_colors = ['red', 'orange', 'yellow', 'lightgreen', 'green']
+                background = ax.pie([1], 
+                                   radius=1, 
+                                   colors=['lightgrey'], 
+                                   startangle=90, 
+                                   counterclock=False, 
+                                   wedgeprops=dict(width=0.2, edgecolor='white'))[0]
+                
+                # Add colored progress arc
+                progress_arc = ax.pie([financial_health, 100-financial_health], 
+                                     radius=1, 
+                                     colors=[score_color, 'white'], 
+                                     startangle=90, 
+                                     counterclock=False, 
+                                     wedgeprops=dict(width=0.2, edgecolor='white'))[0]
+                
+                # Add a circle in the center to make it look like a gauge
+                center_circle = plt.Circle((0, 0), 0.7, fc='white')
+                ax.add_artist(center_circle)
+                
+                # Add score text in center
+                ax.text(0, 0, f"{financial_health:.0f}", 
+                       ha='center', va='center', 
+                       fontsize=24, fontweight='bold', color=score_color)
+                
+                ax.text(0, -0.2, status, 
+                       ha='center', va='center', 
+                       fontsize=12, color=score_color)
+                
+                ax.set_aspect('equal')
+                ax.axis('off')
+                
+                col1, col2 = st.columns([1, 2])
+                with col1:
+                    st.pyplot(fig)
+                
+                with col2:
+                    st.write(f"**Status:** {status}")
+                    
+                    if total_income > 0:
+                        st.write(f"**Savings Rate:** {savings_rate:.1f}% of income")
+                        
+                    if debt_payments > 0:
+                        st.write(f"**Debt-to-Income Ratio:** {debt_ratio:.1f}%")
+                    
+                    st.write("""
+                    Your financial health score is calculated based on several factors including your savings rate,
+                    debt-to-income ratio, and overall balance between income and expenses.
+                    """)
+                
+                st.markdown("</div>", unsafe_allow_html=True)
+                
+                # Display recommendations
+                st.markdown("<h2 class='sub-header'>Personalized Recommendations</h2>", unsafe_allow_html=True)
+                
+                for i, recommendation in enumerate(recommendations):
+                    st.markdown(
+                        f"<div class='card' style='margin-bottom: 10px;'><b>{i+1}.</b> {recommendation}</div>", 
+                        unsafe_allow_html=True
+                    )
+                
+                # Additional insights
+                if total_expense > 0:
+                    st.markdown("<h2 class='sub-header'>Spending Insights</h2>", unsafe_allow_html=True)
+                    
+                    # Convert to DataFrame for analysis
+                    df_expenses = pd.DataFrame(finance.expenses)
+                    
+                    if not df_expenses.empty and 'category' in df_expenses.columns:
+                        # Analyze by category
+                        category_totals = df_expenses.groupby('category')['amount'].sum().reset_index()
+                        category_totals['percentage'] = category_totals['amount'] / total_expense * 100
+                        top_categories = category_totals.sort_values('amount', ascending=False).head(3)
+                        
+                        # Display top spending categories
+                        st.markdown("<div class='card'>", unsafe_allow_html=True)
+                        st.subheader("Top Spending Categories")
+                        
+                        fig, ax = plt.subplots(figsize=(8, 5))
+                        
+                        # Create horizontal bar chart of top categories
+                        bars = ax.barh(
+                            top_categories['category'], 
+                            top_categories['percentage'], 
+                            color=sns.color_palette("viridis", len(top_categories))
+                        )
+                        
+                        # Add percentage labels
+                        for i, bar in enumerate(bars):
+                            width = bar.get_width()
+                            ax.text(
+                                width + 1, 
+                                bar.get_y() + bar.get_height()/2, 
+                                f"{width:.1f}%", 
+                                ha='left', 
+                                va='center'
+                            )
+                        
+                        ax.set_xlabel('Percentage of Total Expenses')
+                        ax.set_title('Where Your Money Goes')
+                        ax.set_xlim(0, 100)
+                        
+                        st.pyplot(fig)
+                        
+                        # Add spending advice based on top categories
+                        for _, row in top_categories.iterrows():
+                            category = row['category']
+                            percentage = row['percentage']
+                            
+                            if category == "Food" and percentage > 20:
+                                st.write("🍔 **Food Spending:** Consider meal planning and cooking at home more often to reduce food expenses.")
+                            elif category == "Housing" and percentage > 40:
+                                st.write("🏠 **Housing Costs:** Your housing costs are high relative to your expenses. Consider if there are ways to reduce this major expense.")
+                            elif category == "Entertainment" and percentage > 15:
+                                st.write("🎭 **Entertainment:** Look for free or low-cost entertainment options to reduce spending in this area.")
+                            elif category == "Transportation" and percentage > 15:
+                                st.write("🚗 **Transportation:** Consider carpooling, public transit, or other alternatives to reduce transportation costs.")
+                            elif category == "Shopping" and percentage > 10:
+                                st.write("🛍️ **Shopping:** Try implementing a 24-hour rule before making non-essential purchases to reduce impulse buying.")
+                            else:
+                                st.write(f"💰 **{category}:** This is one of your top spending categories at {percentage:.1f}% of expenses.")
+                        
+                        st.markdown("</div>", unsafe_allow_html=True)
+            else:
+                st.info("Unable to generate recommendations with the current data.")
+    else:
+        st.info("Click the button above to generate personalized financial recommendations.")
