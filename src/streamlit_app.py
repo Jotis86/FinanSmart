@@ -960,8 +960,11 @@ elif menu == "View Tables":
             if not df_incomes_filtered.empty:
                 # Sort data
                 sort_options = df_incomes_filtered.columns.tolist()
-                selected_sort = st.selectbox("Sort by", sort_options, index=sort_options.index('date') if 'date' in sort_options else 0)
-                sort_order = st.radio("Sort order", ["Descending", "Ascending"], horizontal=True)
+                selected_sort = st.selectbox("Sort by", sort_options, 
+                                           index=sort_options.index('date') if 'date' in sort_options else 0,
+                                           key="income_sort_field")
+                sort_order = st.radio("Sort order", ["Descending", "Ascending"], 
+                                    horizontal=True, key="income_sort_order")
                 
                 # Apply sorting
                 ascending = sort_order == "Ascending"
@@ -987,7 +990,8 @@ elif menu == "View Tables":
                     label="Download Filtered Income Data as CSV",
                     data=csv,
                     file_name="filtered_income_data.csv",
-                    mime="text/csv"
+                    mime="text/csv",
+                    key="download_income_csv"
                 )
             else:
                 st.info("No income data available for the selected filters.")
@@ -1009,22 +1013,22 @@ elif menu == "View Tables":
             # Date filter
             if 'date' in df_expenses.columns:
                 df_expenses['date'] = pd.to_datetime(df_expenses['date'])
-                min_date = df_expenses['date'].min().date()
-                max_date = df_expenses['date'].max().date()
+                exp_min_date = df_expenses['date'].min().date()
+                exp_max_date = df_expenses['date'].max().date()
                 
-                date_range = st.date_input(
+                exp_date_range = st.date_input(
                     "Filter by date range",
-                    value=(min_date, max_date),
-                    min_value=min_date,
-                    max_value=max_date,
+                    value=(exp_min_date, exp_max_date),
+                    min_value=exp_min_date,
+                    max_value=exp_max_date,
                     key="expense_date_filter"
                 )
                 
-                if len(date_range) == 2:
-                    start_date, end_date = date_range
-                    mask = ((df_expenses['date'].dt.date >= start_date) & 
-                           (df_expenses['date'].dt.date <= end_date))
-                    df_expenses_filtered = df_expenses.loc[mask]
+                if len(exp_date_range) == 2:
+                    exp_start_date, exp_end_date = exp_date_range
+                    exp_mask = ((df_expenses['date'].dt.date >= exp_start_date) & 
+                               (df_expenses['date'].dt.date <= exp_end_date))
+                    df_expenses_filtered = df_expenses.loc[exp_mask]
                 else:
                     df_expenses_filtered = df_expenses
             else:
@@ -1032,27 +1036,27 @@ elif menu == "View Tables":
             
             # Category filter
             if 'category' in df_expenses.columns:
-                categories = ['All'] + sorted(df_expenses['category'].unique().tolist())
-                selected_category = st.selectbox("Filter by category", categories, key="expense_category_filter")
+                exp_categories = ['All'] + sorted(df_expenses['category'].unique().tolist())
+                exp_selected_category = st.selectbox("Filter by category", exp_categories, key="expense_category_filter")
                 
-                if selected_category != 'All':
-                    df_expenses_filtered = df_expenses_filtered[df_expenses_filtered['category'] == selected_category]
+                if exp_selected_category != 'All':
+                    df_expenses_filtered = df_expenses_filtered[df_expenses_filtered['category'] == exp_selected_category]
             
             # Amount filter
-            col1, col2 = st.columns(2)
-            with col1:
-                min_amount = st.number_input("Minimum amount", value=0.0, step=10.0, key="expense_min_amount")
-            with col2:
+            exp_col1, exp_col2 = st.columns(2)
+            with exp_col1:
+                exp_min_amount = st.number_input("Minimum amount", value=0.0, step=10.0, key="expense_min_amount")
+            with exp_col2:
                 if 'amount' in df_expenses.columns:
                     max_expense = float(df_expenses['amount'].max())
                 else:
                     max_expense = 1000.0
-                max_amount = st.number_input("Maximum amount", value=max_expense, step=10.0, key="expense_max_amount")
+                exp_max_amount = st.number_input("Maximum amount", value=max_expense, step=10.0, key="expense_max_amount")
             
             if 'amount' in df_expenses_filtered.columns:
                 df_expenses_filtered = df_expenses_filtered[
-                    (df_expenses_filtered['amount'] >= min_amount) & 
-                    (df_expenses_filtered['amount'] <= max_amount)
+                    (df_expenses_filtered['amount'] >= exp_min_amount) & 
+                    (df_expenses_filtered['amount'] <= exp_max_amount)
                 ]
             
             st.markdown("</div>", unsafe_allow_html=True)
@@ -1062,13 +1066,16 @@ elif menu == "View Tables":
             
             if not df_expenses_filtered.empty:
                 # Sort data
-                sort_options = df_expenses_filtered.columns.tolist()
-                selected_sort = st.selectbox("Sort by", sort_options, index=sort_options.index('date') if 'date' in sort_options else 0)
-                sort_order = st.radio("Sort order", ["Descending", "Ascending"], horizontal=True, key="expense_sort_order")
+                exp_sort_options = df_expenses_filtered.columns.tolist()
+                exp_selected_sort = st.selectbox("Sort by", exp_sort_options, 
+                                               index=exp_sort_options.index('date') if 'date' in exp_sort_options else 0,
+                                               key="expense_sort_field")
+                exp_sort_order = st.radio("Sort order", ["Descending", "Ascending"], 
+                                        horizontal=True, key="expense_sort_order")
                 
                 # Apply sorting
-                ascending = sort_order == "Ascending"
-                df_expenses_filtered = df_expenses_filtered.sort_values(by=selected_sort, ascending=ascending)
+                exp_ascending = exp_sort_order == "Ascending"
+                df_expenses_filtered = df_expenses_filtered.sort_values(by=exp_selected_sort, ascending=exp_ascending)
                 
                 # Display the table
                 st.dataframe(df_expenses_filtered, use_container_width=True)
@@ -1077,129 +1084,26 @@ elif menu == "View Tables":
                 st.subheader("Expense Summary")
                 total_expense = df_expenses_filtered['amount'].sum()
                 avg_expense = df_expenses_filtered['amount'].mean()
-                count = len(df_expenses_filtered)
+                exp_count = len(df_expenses_filtered)
                 
-                col1, col2, col3 = st.columns(3)
-                col1.metric("Total Expenses", f"${total_expense:.2f}")
-                col2.metric("Average Expense", f"${avg_expense:.2f}")
-                col3.metric("Number of Entries", count)
+                exp_col1, exp_col2, exp_col3 = st.columns(3)
+                exp_col1.metric("Total Expenses", f"${total_expense:.2f}")
+                exp_col2.metric("Average Expense", f"${avg_expense:.2f}")
+                exp_col3.metric("Number of Entries", exp_count)
                 
                 # Download data as CSV
-                csv = df_expenses_filtered.to_csv(index=False)
+                exp_csv = df_expenses_filtered.to_csv(index=False)
                 st.download_button(
                     label="Download Filtered Expense Data as CSV",
-                    data=csv,
+                    data=exp_csv,
                     file_name="filtered_expense_data.csv",
-                    mime="text/csv"
+                    mime="text/csv",
+                    key="download_expense_csv"
                 )
             else:
                 st.info("No expense data available for the selected filters.")
         else:
             st.info("No expense data available. Please add your expenses in the 'Add Income/Expense' section.")
-    
-    # Tab 3: Data Management
-    with table_tabs[2]:
-        st.subheader("Data Management")
-        
-        st.markdown("<div class='card'>", unsafe_allow_html=True)
-        st.warning("Be careful when deleting data. This action cannot be undone.")
-        
-        # Data management options
-        management_option = st.radio(
-            "Select an action",
-            ["Delete individual entries", "Reset all data"]
-        )
-        
-        if management_option == "Delete individual entries":
-            # Select data type to delete
-            data_type = st.radio("Select data type", ["Income", "Expense"], horizontal=True)
-            
-            if data_type == "Income":
-                if st.session_state['incomes']:
-                    # Display income data with indices
-                    df_incomes = pd.DataFrame(st.session_state['incomes'])
-                    
-                    # Add index column
-                    df_incomes_with_idx = df_incomes.copy()
-                    df_incomes_with_idx.insert(0, 'ID', range(len(df_incomes_with_idx)))
-                    
-                    st.dataframe(df_incomes_with_idx, use_container_width=True)
-                    
-                    # Select ID to delete
-                    id_to_delete = st.number_input(
-                        "Enter the ID of the income entry to delete",
-                        min_value=0,
-                        max_value=len(df_incomes_with_idx)-1 if len(df_incomes_with_idx) > 0 else 0,
-                        step=1
-                    )
-                    
-                    if st.button("Delete Income Entry"):
-                        if 0 <= id_to_delete < len(st.session_state['incomes']):
-                            # Delete the entry
-                            del st.session_state['incomes'][id_to_delete]
-                            save_data(st.session_state['incomes'], incomes_file_path)
-                            st.success(f"Income entry with ID {id_to_delete} deleted successfully!")
-                            st.experimental_rerun()
-                        else:
-                            st.error("Invalid ID. Please enter a valid ID.")
-                else:
-                    st.info("No income data available to delete.")
-            else:  # Expense
-                if st.session_state['expenses']:
-                    # Display expense data with indices
-                    df_expenses = pd.DataFrame(st.session_state['expenses'])
-                    
-                    # Add index column
-                    df_expenses_with_idx = df_expenses.copy()
-                    df_expenses_with_idx.insert(0, 'ID', range(len(df_expenses_with_idx)))
-                    
-                    st.dataframe(df_expenses_with_idx, use_container_width=True)
-                    
-                    # Select ID to delete
-                    id_to_delete = st.number_input(
-                        "Enter the ID of the expense entry to delete",
-                        min_value=0,
-                        max_value=len(df_expenses_with_idx)-1 if len(df_expenses_with_idx) > 0 else 0,
-                        step=1
-                    )
-                    
-                    if st.button("Delete Expense Entry"):
-                        if 0 <= id_to_delete < len(st.session_state['expenses']):
-                            # Delete the entry
-                            del st.session_state['expenses'][id_to_delete]
-                            save_data(st.session_state['expenses'], expenses_file_path)
-                            st.success(f"Expense entry with ID {id_to_delete} deleted successfully!")
-                            st.rerun()
-                        else:
-                            st.error("Invalid ID. Please enter a valid ID.")
-                else:
-                    st.info("No expense data available to delete.")
-        
-        elif management_option == "Reset all data":
-            # Reset all data confirmation
-            st.error("This will delete ALL of your financial data. This action cannot be undone.")
-            
-            # Require typing "DELETE" to confirm
-            confirm_text = st.text_input("Type 'DELETE' to confirm")
-            
-            if st.button("Reset All Data"):
-                if confirm_text == "DELETE":
-                    # Reset all data
-                    st.session_state['incomes'] = []
-                    st.session_state['expenses'] = []
-                    st.session_state['goals'] = []
-                    
-                    # Save empty data
-                    save_data(st.session_state['incomes'], incomes_file_path)
-                    save_data(st.session_state['expenses'], expenses_file_path)
-                    save_data(st.session_state['goals'], goals_file_path)
-                    
-                    st.success("All data has been reset successfully!")
-                    st.experimental_rerun()
-                else:
-                    st.warning("Please type 'DELETE' to confirm data reset.")
-        
-        st.markdown("</div>", unsafe_allow_html=True)
 
 # Financial Goals page
 elif menu == "Financial Goals":
