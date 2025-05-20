@@ -62,7 +62,10 @@ def autenticar_usuario():
         )
         
         # Mostrar la página de inicio de sesión - versión 0.3.1
-        name, authentication_status, username = authenticator.login('Inicio de Sesión', 'main')
+        name, authentication_status, username = authenticator.login(
+            location='main',
+            fields={'form_name': 'Inicio de Sesión', 'username': 'Usuario', 'password': 'Contraseña', 'login': 'Acceder'}
+        )
     except Exception as e:
         st.error(f"Error en autenticación: {str(e)}")
         return None, None
