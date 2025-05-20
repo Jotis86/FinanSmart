@@ -1171,7 +1171,7 @@ elif menu == "View Tables":
                             del st.session_state['expenses'][id_to_delete]
                             save_data(st.session_state['expenses'], expenses_file_path)
                             st.success(f"Expense entry with ID {id_to_delete} deleted successfully!")
-                            st.experimental_rerun()
+                            st.rerun()
                         else:
                             st.error("Invalid ID. Please enter a valid ID.")
                 else:
@@ -1202,3 +1202,257 @@ elif menu == "View Tables":
                     st.warning("Please type 'DELETE' to confirm data reset.")
         
         st.markdown("</div>", unsafe_allow_html=True)
+
+# Financial Goals page
+elif menu == "Financial Goals":
+    st.markdown("<h1 class='main-header'>Financial Goals</h1>", unsafe_allow_html=True)
+    
+    st.markdown("<div class='card'>", unsafe_allow_html=True)
+    st.write("""
+    Set and track your financial goals here. Setting specific goals can help you stay motivated
+    and focused on your financial journey.
+    """)
+    st.markdown("</div>", unsafe_allow_html=True)
+    
+    # Create tabs for different goal actions
+    goals_tabs = st.tabs(["My Goals", "Add New Goal", "Goal Progress"])
+    
+    # Tab 1: View Goals
+    with goals_tabs[0]:
+        st.subheader("My Financial Goals")
+        
+        if st.session_state['goals']:
+            # Convert to DataFrame for display
+            df_goals = pd.DataFrame(st.session_state['goals'])
+            
+            # Calculate progress for each goal
+            for i, goal in enumerate(st.session_state['goals']):
+                if goal.get('category') == 'saving':
+                    # For saving goals, calculate based on income with Savings category
+                    current_savings = sum(
+                        item["amount"] for item in st.session_state['incomes'] 
+                        if item.get("category") == "Savings"
+                    )
+                    progress = min(100, max(0, (current_savings / goal.get('target_amount', 1)) * 100))
+                elif goal.get('category') == 'expense_reduction':
+                    # For expense reduction goals, calculate how close we are to the target
+                    category = goal.get('subcategory', '')
+                    current_expense = sum(
+                        item["amount"] for item in st.session_state['expenses'] 
+                        if item.get("category") == category
+                    )
+                    progress = min(100, max(0, 100 - (current_expense / goal.get('target_amount', 1)) * 100))
+                else:
+                    # Generic goals - just use stored progress if available
+                    progress = goal.get('progress', 0)
+                
+                # Update progress in the session state
+                st.session_state['goals'][i]['progress'] = progress
+            
+            # Save updated goals
+            save_data(st.session_state['goals'], goals_file_path)
+            
+            # Display goals as cards
+            for i, goal in enumerate(st.session_state['goals']):
+                col1, col2 = st.columns([3, 1])
+                
+                with col1:
+                    st.markdown("<div class='card'>", unsafe_allow_html=True)
+                    st.subheader(goal.get('name', 'Unnamed Goal'))
+                    
+                    # Show goal details
+                    st.write(f"**Target:** ${goal.get('target_amount', 0):.2f}")
+                    st.write(f"**Deadline:** {goal.get('deadline', 'No deadline')}")
+                    st.write(f"**Category:** {goal.get('category', 'General')}")
+                    
+                    # Calculate days remaining
+                    try:
+                        deadline_date = datetime.strptime(goal.get('deadline', '2099-12-31'), "%Y-%m-%d")
+                        days_remaining = (deadline_date - datetime.now()).days
+                        
+                        if days_remaining > 0:
+                            st.write(f"**Days remaining:** {days_remaining}")
+                        else:
+                            st.write("**Status:** Goal deadline has passed")
+                    except:
+                        st.write("**Deadline format:** Invalid")
+                    
+                    # Show progress bar
+                    progress = goal.get('progress', 0)
+                    st.progress(progress / 100)
+                    st.write(f"**Progress:** {progress:.1f}%")
+                    
+                    # Delete button
+                    if st.button(f"Delete Goal {i+1}"):
+                        st.session_state['goals'].pop(i)
+                        save_data(st.session_state['goals'], goals_file_path)
+                        st.success(f"Goal '{goal.get('name')}' deleted successfully!")
+                        st.rerun()  # Use st.rerun() instead of experimental_rerun
+                    
+                    st.markdown("</div>", unsafe_allow_html=True)
+                
+                with col2:
+                    # Visualize progress with a small chart
+                    fig, ax = plt.subplots(figsize=(3, 3))
+                    
+                    # Create a simple gauge chart
+                    progress = goal.get('progress', 0)
+                    colors = ['red', 'orange', 'yellow', 'lightgreen', 'green']
+                    color_idx = min(int(progress / 20), 4)
+                    
+                    ax.pie([progress, 100-progress], 
+                          colors=[colors[color_idx], '#f0f0f0'],
+                          startangle=90, 
+                          counterclock=False)
+                    
+                    # Add a circle in the center to make it look like a gauge
+                    circle = plt.Circle((0, 0), 0.7, fc='white')
+                    ax.add_artist(circle)
+                    
+                    # Add text in center
+                    ax.text(0, 0, f"{progress:.1f}%", 
+                           ha='center', va='center', 
+                           fontsize=12, fontweight='bold')
+                    
+                    ax.set_title(f"Goal Progress")
+                    ax.axis('equal')
+                    st.pyplot(fig)
+        else:
+            st.info("You don't have any financial goals yet. Create one in the 'Add New Goal' tab.")
+    
+    # Tab 2: Add New Goal
+    with goals_tabs[1]:
+        st.subheader("Create a New Financial Goal")
+        
+        with st.form("new_goal_form"):
+            # Basic goal information
+            goal_name = st.text_input("Goal Name")
+            goal_amount = st.number_input("Target Amount ($)", min_value=1.0, step=100.0)
+            goal_deadline = st.date_input("Deadline", min_value=datetime.now().date())
+            
+            # Goal category
+            goal_category = st.selectbox(
+                "Goal Category",
+                ["saving", "expense_reduction", "debt_payoff", "income_increase", "other"]
+            )
+            
+            # Additional fields based on category
+            if goal_category == "expense_reduction":
+                # For expense reduction, select which expense category to reduce
+                expense_categories = ["Food", "Transportation", "Housing", "Entertainment", "Health", 
+                                     "Education", "Utilities", "Insurance", "Debt", "Travel", "Other"]
+                subcategory = st.selectbox("Expense Category to Reduce", expense_categories)
+            else:
+                subcategory = ""
+            
+            # Notes
+            goal_notes = st.text_area("Notes (optional)")
+            
+            # Submit button
+            submitted = st.form_submit_button("Create Goal")
+            
+            if submitted:
+                if goal_name and goal_amount > 0:
+                    # Create new goal
+                    new_goal = {
+                        "name": goal_name,
+                        "target_amount": goal_amount,
+                        "deadline": goal_deadline.strftime("%Y-%m-%d"),
+                        "category": goal_category,
+                        "subcategory": subcategory,
+                        "notes": goal_notes,
+                        "created_date": datetime.now().strftime("%Y-%m-%d"),
+                        "progress": 0
+                    }
+                    
+                    # Add to session state and save
+                    st.session_state['goals'].append(new_goal)
+                    save_data(st.session_state['goals'], goals_file_path)
+                    
+                    st.success(f"Goal '{goal_name}' created successfully!")
+                else:
+                    st.error("Please provide a name and a valid target amount for your goal.")
+    
+    # Tab 3: Goal Progress
+    with goals_tabs[2]:
+        st.subheader("Goal Progress Tracking")
+        
+        if st.session_state['goals']:
+            # Allow user to select a goal to update manually
+            goal_names = [goal.get('name', f"Goal {i+1}") for i, goal in enumerate(st.session_state['goals'])]
+            selected_goal_idx = st.selectbox("Select a goal to update", range(len(goal_names)), format_func=lambda x: goal_names[x])
+            
+            selected_goal = st.session_state['goals'][selected_goal_idx]
+            
+            st.markdown("<div class='card'>", unsafe_allow_html=True)
+            st.subheader(selected_goal.get('name', 'Unnamed Goal'))
+            
+            # Show current progress
+            current_progress = selected_goal.get('progress', 0)
+            st.write(f"Current progress: {current_progress:.1f}%")
+            
+            # Allow manual progress update
+            new_progress = st.slider(
+                "Update progress", 
+                min_value=0.0, 
+                max_value=100.0, 
+                value=float(current_progress),
+                step=1.0
+            )
+            
+            # Add notes about the progress update
+            progress_notes = st.text_area("Progress notes (optional)")
+            
+            if st.button("Update Progress"):
+                # Update the goal's progress
+                st.session_state['goals'][selected_goal_idx]['progress'] = new_progress
+                
+                # Add notes if provided
+                if progress_notes:
+                    if 'progress_history' not in st.session_state['goals'][selected_goal_idx]:
+                        st.session_state['goals'][selected_goal_idx]['progress_history'] = []
+                    
+                    st.session_state['goals'][selected_goal_idx]['progress_history'].append({
+                        "date": datetime.now().strftime("%Y-%m-%d"),
+                        "progress": new_progress,
+                        "notes": progress_notes
+                    })
+                
+                # Save updated goals
+                save_data(st.session_state['goals'], goals_file_path)
+                
+                st.success(f"Progress for '{selected_goal.get('name')}' updated successfully!")
+            
+            # Show progress history if available
+            if 'progress_history' in selected_goal and selected_goal['progress_history']:
+                st.subheader("Progress History")
+                
+                history = selected_goal['progress_history']
+                
+                # Create a DataFrame for display
+                df_history = pd.DataFrame(history)
+                st.dataframe(df_history, use_container_width=True)
+                
+                # Visualize progress over time if there are multiple entries
+                if len(history) > 1:
+                    fig, ax = plt.subplots(figsize=(10, 5))
+                    
+                    # Convert dates to datetime for proper sorting
+                    df_history['date'] = pd.to_datetime(df_history['date'])
+                    df_history = df_history.sort_values('date')
+                    
+                    ax.plot(df_history['date'], df_history['progress'], marker='o', linestyle='-')
+                    ax.set_title('Goal Progress Over Time')
+                    ax.set_xlabel('Date')
+                    ax.set_ylabel('Progress (%)')
+                    ax.grid(True, linestyle='--', alpha=0.7)
+                    
+                    # Rotate x-axis labels for better readability
+                    plt.xticks(rotation=45)
+                    plt.tight_layout()
+                    
+                    st.pyplot(fig)
+            
+            st.markdown("</div>", unsafe_allow_html=True)
+        else:
+            st.info("You don't have any financial goals yet. Create one in the 'Add New Goal' tab.")
