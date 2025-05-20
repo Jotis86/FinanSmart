@@ -340,3 +340,140 @@ if menu == "Dashboard":
         st.dataframe(df_recent, height=200)
     else:
         st.info("No transactions available yet. Add income and expenses to see recent transactions.")
+
+
+# Add Income/Expense page
+elif menu == "Add Income/Expense":
+    st.markdown("<h1 class='main-header'>Add Income and Expense</h1>", unsafe_allow_html=True)
+    
+    st.markdown("<div class='card'>", unsafe_allow_html=True)
+    st.write("""
+    Here you can add your income and expenses. Select the type, category, and description, 
+    then enter the amount. This will help you keep track of your financial transactions.
+    """)
+    st.markdown("</div>", unsafe_allow_html=True)
+    
+    # Define categories and descriptions
+    income_categories = ["Salary", "Bonus", "Investment", "Other"]
+    expense_categories = ["Food", "Transportation", "Housing", "Entertainment", "Health", 
+                         "Education", "Utilities", "Insurance", "Debt", "Savings", "Gifts", 
+                         "Travel", "Other"]
+    
+    descriptions = {
+        "Salary": ["Monthly Salary", "Freelance Work", "Part-time Job", "Consulting"],
+        "Bonus": ["Year-end Bonus", "Performance Bonus", "Referral Bonus", "Holiday Bonus"],
+        "Investment": ["Stock Dividends", "Real Estate Income", "Interest Income", "Cryptocurrency Gains"],
+        "Other": ["Gift", "Lottery", "Inheritance", "Found Money"],
+        "Food": ["Groceries", "Dining Out", "Snacks", "Beverages"],
+        "Transportation": ["Gas", "Public Transport", "Car Maintenance", "Parking Fees"],
+        "Housing": ["Rent", "Mortgage", "Property Taxes", "Home Repairs"],
+        "Entertainment": ["Movies", "Concerts", "Streaming Services", "Games"],
+        "Health": ["Doctor Visit", "Medication", "Health Insurance", "Gym Membership"],
+        "Education": ["Tuition", "Books", "Online Courses", "Workshops"],
+        "Utilities": ["Electricity", "Water", "Internet", "Phone"],
+        "Insurance": ["Car Insurance", "Home Insurance", "Life Insurance", "Health Insurance"],
+        "Debt": ["Credit Card Payment", "Loan Payment", "Mortgage Payment", "Student Loan Payment"],
+        "Savings": ["Emergency Fund", "Retirement Fund", "Investment Account", "Savings Account"],
+        "Gifts": ["Birthday Gifts", "Holiday Gifts", "Wedding Gifts", "Charity"],
+        "Travel": ["Flights", "Hotels", "Car Rental", "Activities"],
+        "Other": ["Miscellaneous", "Unexpected Expenses", "Pet Expenses", "Subscriptions"]
+    }
+    
+    # Create a form for adding income or expense
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        st.markdown("<div class='card'>", unsafe_allow_html=True)
+        st.subheader("Transaction Details")
+        
+        # Select transaction type
+        trans_type = st.selectbox("Select type", ["Income", "Expense"])
+        
+        # Select category based on transaction type
+        if trans_type == "Income":
+            category = st.selectbox("Select category", income_categories)
+        else:
+            category = st.selectbox("Select category", expense_categories)
+        
+        # Select description based on category
+        description = st.selectbox("Select description", descriptions[category])
+        
+        # Enter amount
+        amount = st.number_input("Enter amount", min_value=0.01, step=0.01, format="%.2f")
+        
+        # Select date
+        date = st.date_input("Select date", datetime.now())
+        date_str = date.strftime("%Y-%m-%d")
+        
+        # Add button
+        if st.button("Add Transaction"):
+            if trans_type == "Income":
+                # Add income
+                new_income = {"amount": amount, "description": description, 
+                             "category": category, "date": date_str}
+                st.session_state['incomes'].append(new_income)
+                save_data(st.session_state['incomes'], incomes_file_path)
+                st.success(f"Income of ${amount:.2f} added successfully!")
+            else:
+                # Add expense
+                new_expense = {"amount": amount, "description": description, 
+                              "category": category, "date": date_str}
+                st.session_state['expenses'].append(new_expense)
+                save_data(st.session_state['expenses'], expenses_file_path)
+                st.success(f"Expense of ${amount:.2f} added successfully!")
+        
+        st.markdown("</div>", unsafe_allow_html=True)
+    
+    with col2:
+        st.markdown("<div class='card'>", unsafe_allow_html=True)
+        st.subheader("Quick Summary")
+        
+        # Display total income, expenses and balance
+        total_income = sum(item["amount"] for item in st.session_state['incomes'])
+        total_expense = sum(item["amount"] for item in st.session_state['expenses'])
+        balance = total_income - total_expense
+        
+        st.info(f"Total Income: ${total_income:.2f}")
+        st.info(f"Total Expenses: ${total_expense:.2f}")
+        
+        # Show balance with appropriate color
+        if balance >= 0:
+            st.success(f"Current Balance: ${balance:.2f}")
+        else:
+            st.error(f"Current Balance: ${balance:.2f}")
+            
+        # Show recent transactions
+        st.subheader("Last 3 Transactions")
+        
+        # Combine and sort transactions
+        all_transactions = []
+        for income in st.session_state['incomes']:
+            transaction = income.copy()
+            transaction['type'] = 'Income'
+            all_transactions.append(transaction)
+        
+        for expense in st.session_state['expenses']:
+            transaction = expense.copy()
+            transaction['type'] = 'Expense'
+            all_transactions.append(transaction)
+        
+        # Sort by date (most recent first)
+        all_transactions.sort(key=lambda x: datetime.strptime(x.get('date', '1900-01-01'), '%Y-%m-%d'), reverse=True)
+        
+        # Display recent transactions
+        if all_transactions:
+            # Take only the 3 most recent transactions
+            recent_transactions = all_transactions[:3]
+            
+            for idx, transaction in enumerate(recent_transactions):
+                date = transaction.get('date', 'N/A')
+                trans_type = transaction.get('type', 'N/A')
+                category = transaction.get('category', 'N/A')
+                amount = transaction.get('amount', 0)
+                
+                type_color = "blue" if trans_type == "Income" else "red"
+                st.markdown(f"<p>{date} - <span style='color:{type_color}'>{trans_type}</span> - {category} - ${amount:.2f}</p>", unsafe_allow_html=True)
+        else:
+            st.write("No transactions yet.")
+        
+        st.markdown("</div>", unsafe_allow_html=True)
