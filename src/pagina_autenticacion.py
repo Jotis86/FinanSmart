@@ -52,8 +52,14 @@ def autenticar_usuario():
     # Cargar la configuración de usuarios
     config = cargar_configuracion()
     
-    # Configurar el autenticador
+    # Inicializar variables
+    authentication_status = None
+    name = None
+    username = None
+    authenticator = None
+    
     try:
+        # Configurar el autenticador
         authenticator = stauth.Authenticate(
             config['credentials'],
             config['cookie']['name'],
@@ -61,19 +67,21 @@ def autenticar_usuario():
             config['cookie']['expiry_days']
         )
         
-        # Mostrar la página de inicio de sesión - versión 0.3.1
-        name, authentication_status, username = authenticator.login(
-            location='main',
-            fields={'form_name': 'Inicio de Sesión', 'username': 'Usuario', 'password': 'Contraseña', 'login': 'Acceder'}
-        )
+        # Mostrar la página de inicio de sesión
+        try:
+            result = authenticator.login('Inicio de Sesión', 'main')
+            if result:
+                name, authentication_status, username = result
+                
+                # Guardar el estado de autenticación y el nombre de usuario en session_state
+                st.session_state.authentication_status = authentication_status
+                st.session_state.name = name
+                st.session_state.username = username
+        except Exception as e:
+            st.error(f"Error en login: {str(e)}")
+            
     except Exception as e:
         st.error(f"Error en autenticación: {str(e)}")
-        return None, None
-    
-    # Guardar el estado de autenticación y el nombre de usuario en session_state
-    st.session_state.authentication_status = authentication_status
-    st.session_state.name = name
-    st.session_state.username = username
     
     # Determinar qué mostrar según el estado de autenticación
     if authentication_status is False:
