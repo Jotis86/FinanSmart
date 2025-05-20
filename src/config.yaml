@@ -1,0 +1,14 @@
+cookie:
+  expiry_days: 30
+  key: finansmart_auth
+  name: finansmart_cookie
+credentials:
+  usernames:
+    admin:
+      email: admin@example.com
+      failed_login_attempts: 0
+      logged_in: false
+      name: Administrador
+      password: $2b$12$zcFwb51JMIL.i/iaRAMJo.gyZDKT4tMBJSDJ5dzHlMjMrtRAsoEsO
+preauthorized:
+  emails: []

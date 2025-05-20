@@ -3,6 +3,7 @@ import streamlit_authenticator as stauth
 import yaml
 import os
 from usuarios import cargar_configuracion, crear_usuario, crear_estructura_archivos_usuario, inicializar_sistema
+from verificar_config import inicializar_config
 
 def mostrar_pagina_registro():
     """
@@ -42,6 +43,9 @@ def autenticar_usuario():
     """
     Maneja la autenticación de usuarios
     """
+    # Primero verificamos la configuración
+    inicializar_config()
+    
     # Inicializar el sistema si es necesario
     inicializar_sistema()
     
@@ -49,16 +53,20 @@ def autenticar_usuario():
     config = cargar_configuracion()
     
     # Configurar el autenticador
-    authenticator = stauth.Authenticate(
-        config['credentials'],
-        config['cookie']['name'],
-        config['cookie']['key'],
-        config['cookie']['expiry_days'],
-        config['preauthorized']
-    )
-    
-    # Mostrar la página de inicio de sesión
-    name, authentication_status, username = authenticator.login('Inicio de Sesión', 'main')
+    try:
+        authenticator = stauth.Authenticate(
+            config['credentials'],
+            config['cookie']['name'],
+            config['cookie']['key'],
+            config['cookie']['expiry_days'],
+            config.get('preauthorized', {'emails': []})
+        )
+        
+        # Mostrar la página de inicio de sesión
+        name, authentication_status, username = authenticator.login('Inicio de Sesión', 'main')
+    except Exception as e:
+        st.error(f"Error en autenticación: {str(e)}")
+        return None, None
     
     # Guardar el estado de autenticación y el nombre de usuario en session_state
     st.session_state.authentication_status = authentication_status

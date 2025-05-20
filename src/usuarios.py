@@ -2,6 +2,7 @@ import yaml
 import os
 import streamlit_authenticator as stauth
 import pandas as pd
+import bcrypt
 from yaml.loader import SafeLoader
 
 # Ruta del archivo de configuración de usuarios
@@ -13,13 +14,16 @@ def inicializar_usuarios():
     """
     if not os.path.exists(CONFIG_PATH):
         # Configuración inicial con un usuario administrador
+        # Usar bcrypt directamente para generar hash de contraseña
+        password_hash = bcrypt.hashpw('admin'.encode(), bcrypt.gensalt()).decode()
+        
         config = {
             'credentials': {
                 'usernames': {
                     'admin': {
                         'name': 'Administrador',
                         'email': 'admin@example.com',
-                        'password': stauth.Hasher(['admin']).generate()[0]
+                        'password': password_hash
                     }
                 }
             },
@@ -61,11 +65,14 @@ def crear_usuario(username, name, email, password):
     if username in config['credentials']['usernames']:
         return False, "El nombre de usuario ya existe"
     
+    # Generar hash de la contraseña directamente con bcrypt
+    password_hash = bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
+    
     # Añadir el nuevo usuario
     config['credentials']['usernames'][username] = {
         'name': name,
         'email': email,
-        'password': stauth.Hasher([password]).generate()[0]
+        'password': password_hash
     }
     
     guardar_configuracion(config)
