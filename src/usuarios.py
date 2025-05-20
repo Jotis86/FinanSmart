@@ -19,7 +19,7 @@ def inicializar_usuarios():
                     'admin': {
                         'name': 'Administrador',
                         'email': 'admin@example.com',
-                        'password': stauth.Hasher('admin').hash()
+                        'password': stauth.Hasher(['admin']).generate()[0]
                     }
                 }
             },
@@ -65,7 +65,7 @@ def crear_usuario(username, name, email, password):
     config['credentials']['usernames'][username] = {
         'name': name,
         'email': email,
-        'password': stauth.Hasher(password).hash()
+        'password': stauth.Hasher([password]).generate()[0]
     }
     
     guardar_configuracion(config)
