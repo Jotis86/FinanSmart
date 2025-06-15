@@ -70,6 +70,10 @@ if authentication_status:
     # Obtener rutas de archivos específicas del usuario
     rutas_archivos = obtener_ruta_archivos_usuario(st.session_state.username)
     
+    # Asegurarse de que los directorios existan
+    for ruta in rutas_archivos.values():
+        os.makedirs(os.path.dirname(ruta), exist_ok=True)
+
     # Definir rutas de archivos para almacenar los datos del usuario actual
     incomes_file_path = rutas_archivos['incomes']
     expenses_file_path = rutas_archivos['expenses']
@@ -90,6 +94,11 @@ if authentication_status:
 
     # Function to save data to CSV
     def save_data(data, file_path):
+        """
+        Guarda los datos en un archivo CSV, creando el directorio si no existe
+        """
+        # Crear el directorio si no existe
+        os.makedirs(os.path.dirname(file_path), exist_ok=True)
         pd.DataFrame(data).to_csv(file_path, index=False)
 
     # Function to export data to Excel
