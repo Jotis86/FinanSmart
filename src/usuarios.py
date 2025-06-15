@@ -1,55 +1,38 @@
-import yaml
 import os
-import streamlit_authenticator as stauth
-import pandas as pd
+import yaml
 import bcrypt
 from yaml.loader import SafeLoader
-
-# Ruta del archivo de configuración de usuarios
-CONFIG_PATH = os.path.join(os.path.dirname(__file__), 'config.yaml')
-
-def inicializar_usuarios():
-    """
-    Inicializa el archivo de configuración con usuarios por defecto si no existe
-    """
-    if not os.path.exists(CONFIG_PATH):
-        # Configuración inicial con un usuario administrador
-        # Usar bcrypt directamente para generar hash de contraseña
-        password_hash = bcrypt.hashpw('admin'.encode(), bcrypt.gensalt()).decode()
-        
-        config = {
-            'credentials': {
-                'usernames': {
-                    'admin': {
-                        'name': 'Administrador',
-                        'email': 'admin@example.com',
-                        'password': password_hash
-                    }
-                }
-            },
-            'cookie': {
-                'expiry_days': 30,
-                'key': 'finansmart_auth',
-                'name': 'finansmart_cookie'
-            }
-        }
-        
-        with open(CONFIG_PATH, 'w') as file:
-            yaml.dump(config, file, default_flow_style=False)
+import pandas as pd
 
 def cargar_configuracion():
     """
     Carga la configuración de usuarios desde el archivo YAML
     """
-    with open(CONFIG_PATH, 'r') as file:
-        config = yaml.load(file, Loader=SafeLoader)
-    return config
+    config_path = os.path.join('config', 'config.yaml')
+    
+    # Si el archivo no existe, crear uno vacío
+    if not os.path.exists(config_path):
+        os.makedirs('config', exist_ok=True)
+        config = {
+            'credentials': {
+                'usernames': {}
+            }
+        }
+        with open(config_path, 'w') as file:
+            yaml.dump(config, file, default_flow_style=False)
+        return config
+    
+    # Cargar configuración existente
+    with open(config_path, 'r') as file:
+        return yaml.load(file, Loader=SafeLoader)
 
 def guardar_configuracion(config):
     """
     Guarda la configuración de usuarios en el archivo YAML
     """
-    with open(CONFIG_PATH, 'w') as file:
+    config_path = os.path.join('config', 'config.yaml')
+    os.makedirs('config', exist_ok=True)
+    with open(config_path, 'w') as file:
         yaml.dump(config, file, default_flow_style=False)
 
 def crear_usuario(username, name, email, password):
@@ -62,65 +45,63 @@ def crear_usuario(username, name, email, password):
     if username in config['credentials']['usernames']:
         return False, "El nombre de usuario ya existe"
     
-    # Generar hash de la contraseña directamente con bcrypt
-    password_hash = bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
+    # Hashear la contraseña
+    hashed_password = bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
     
-    # Añadir el nuevo usuario
+    # Agregar el nuevo usuario
     config['credentials']['usernames'][username] = {
         'name': name,
         'email': email,
-        'password': password_hash
+        'password': hashed_password
     }
     
+    # Guardar la configuración
     guardar_configuracion(config)
-    return True, "Usuario creado con éxito"
+    
+    return True, "Usuario creado exitosamente"
 
 def crear_estructura_archivos_usuario(username):
     """
-    Crea la estructura de archivos para un nuevo usuario
+    Crea la estructura de archivos necesaria para un nuevo usuario
     """
-    directorio_usuario = os.path.join(os.path.dirname(__file__), 'datos', username)
+    # Crear directorios si no existen
+    os.makedirs('data', exist_ok=True)
+    os.makedirs('config', exist_ok=True)
     
-    # Crear directorio si no existe
-    if not os.path.exists(directorio_usuario):
-        os.makedirs(directorio_usuario)
+    # Crear archivos de datos del usuario
+    user_data_path = os.path.join('data', username)
+    os.makedirs(user_data_path, exist_ok=True)
     
-    # Crear archivos vacíos para ingresos, gastos y objetivos
-    archivos = ['incomes.csv', 'expenses.csv', 'goals.csv']
-    for archivo in archivos:
-        ruta_archivo = os.path.join(directorio_usuario, archivo)
-        if not os.path.exists(ruta_archivo):
-            # Crear DataFrame vacío con columnas apropiadas
-            if archivo == 'incomes.csv':
-                columnas = ['date', 'category', 'description', 'amount']
-            elif archivo == 'expenses.csv':
-                columnas = ['date', 'category', 'description', 'amount']
-            else:  # goals.csv
-                columnas = ['name', 'target_amount', 'current_amount', 'target_date', 'description']
-                
-            df = pd.DataFrame(columns=columnas)
-            df.to_csv(ruta_archivo, index=False)
-
-def obtener_ruta_archivos_usuario(username):
-    """
-    Obtiene las rutas de los archivos de datos del usuario
-    """
-    directorio_usuario = os.path.join(os.path.dirname(__file__), 'datos', username)
-    
-    return {
-        'incomes': os.path.join(directorio_usuario, 'incomes.csv'),
-        'expenses': os.path.join(directorio_usuario, 'expenses.csv'),
-        'goals': os.path.join(directorio_usuario, 'goals.csv')
-    }
+    # Crear archivos CSV vacíos
+    pd.DataFrame().to_csv(os.path.join(user_data_path, 'incomes.csv'), index=False)
+    pd.DataFrame().to_csv(os.path.join(user_data_path, 'expenses.csv'), index=False)
+    pd.DataFrame().to_csv(os.path.join(user_data_path, 'goals.csv'), index=False)
 
 def inicializar_sistema():
     """
-    Inicializa todo el sistema de usuarios
+    Inicializa el sistema creando los directorios necesarios
     """
-    # Crear directorio de datos si no existe
-    directorio_datos = os.path.join(os.path.dirname(__file__), 'datos')
-    if not os.path.exists(directorio_datos):
-        os.makedirs(directorio_datos)
+    os.makedirs('data', exist_ok=True)
+    os.makedirs('config', exist_ok=True)
     
-    # Inicializar archivo de configuración
-    inicializar_usuarios() 
+    # Crear archivo de configuración si no existe
+    config_path = os.path.join('config', 'config.yaml')
+    if not os.path.exists(config_path):
+        config = {
+            'credentials': {
+                'usernames': {}
+            }
+        }
+        with open(config_path, 'w') as file:
+            yaml.dump(config, file, default_flow_style=False)
+
+def obtener_ruta_archivos_usuario(username):
+    """
+    Obtiene las rutas de los archivos para un usuario específico
+    """
+    user_data_path = os.path.join('data', username)
+    return {
+        'incomes': os.path.join(user_data_path, 'incomes.csv'),
+        'expenses': os.path.join(user_data_path, 'expenses.csv'),
+        'goals': os.path.join(user_data_path, 'goals.csv')
+    } 
