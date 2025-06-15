@@ -10,12 +10,20 @@ def cargar_configuracion():
     """
     config_path = os.path.join('config', 'config.yaml')
     
-    # Si el archivo no existe, crear uno vacío
+    # Si el archivo no existe, crear uno con usuario admin por defecto
     if not os.path.exists(config_path):
         os.makedirs('config', exist_ok=True)
+        # Crear hash de contraseña para admin
+        admin_password = bcrypt.hashpw('admin'.encode(), bcrypt.gensalt()).decode()
         config = {
             'credentials': {
-                'usernames': {}
+                'usernames': {
+                    'admin': {
+                        'name': 'Administrador',
+                        'email': 'admin@example.com',
+                        'password': admin_password
+                    }
+                }
             }
         }
         with open(config_path, 'w') as file:
