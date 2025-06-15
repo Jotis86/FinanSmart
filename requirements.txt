@@ -1,5 +1,7 @@
+streamlit
 pandas
-seaborn
+numpy
 matplotlib
-streamlit-authenticator
+seaborn
 bcrypt
+pyyaml
