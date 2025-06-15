@@ -1,2 +1,6 @@
 credentials:
-  usernames: {}
+  usernames:
+    admin:
+      email: admin@example.com
+      name: Administrador
+      password: $2b$12$i2N2Bxwzaez6rxAaBe.mCOlTY7w3y65Lb8A2BHOLqleAQ2prlnrDm

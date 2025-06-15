@@ -10,25 +10,9 @@ def cargar_configuracion():
     """
     config_path = os.path.join('config', 'config.yaml')
     
-    # Si el archivo no existe, crear uno con usuario admin por defecto
+    # Si el archivo no existe, inicializar el sistema
     if not os.path.exists(config_path):
-        os.makedirs('config', exist_ok=True)
-        # Crear hash de contraseña para admin
-        admin_password = bcrypt.hashpw('admin'.encode(), bcrypt.gensalt()).decode()
-        config = {
-            'credentials': {
-                'usernames': {
-                    'admin': {
-                        'name': 'Administrador',
-                        'email': 'admin@example.com',
-                        'password': admin_password
-                    }
-                }
-            }
-        }
-        with open(config_path, 'w') as file:
-            yaml.dump(config, file, default_flow_style=False)
-        return config
+        inicializar_sistema()
     
     # Cargar configuración existente
     with open(config_path, 'r') as file:
@@ -87,21 +71,33 @@ def crear_estructura_archivos_usuario(username):
 
 def inicializar_sistema():
     """
-    Inicializa el sistema creando los directorios necesarios
+    Inicializa el sistema creando los directorios necesarios y el usuario admin
     """
+    # Crear directorios necesarios
     os.makedirs('data', exist_ok=True)
     os.makedirs('config', exist_ok=True)
     
-    # Crear archivo de configuración si no existe
+    # Crear archivo de configuración con usuario admin si no existe
     config_path = os.path.join('config', 'config.yaml')
     if not os.path.exists(config_path):
+        # Crear hash de contraseña para admin
+        admin_password = bcrypt.hashpw('admin'.encode(), bcrypt.gensalt()).decode()
         config = {
             'credentials': {
-                'usernames': {}
+                'usernames': {
+                    'admin': {
+                        'name': 'Administrador',
+                        'email': 'admin@example.com',
+                        'password': admin_password
+                    }
+                }
             }
         }
         with open(config_path, 'w') as file:
             yaml.dump(config, file, default_flow_style=False)
+        
+        # Crear estructura de archivos para admin
+        crear_estructura_archivos_usuario('admin')
 
 def obtener_ruta_archivos_usuario(username):
     """
